@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "exception.js",
+  "sourceRoot": "",
+  "sources": [
+    "exception.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA;AAAA,MAAA;;EAAM;IACS,uBAAC,GAAD;MACX,IAAC,CAAA,OAAD,GAAW;MACX,IAAC,CAAA,IAAD,GAAQ;IAFG;;4BAIb,QAAA,GAAU,SAAA;aACL,IAAC,CAAA,IAAF,GAAO,MAAP,GAAa,IAAC,CAAA,IAAd,GAAmB;IADb;;;;;;EAGZ,OAAO,CAAC,aAAR,GAAwB;AARxB"
+}
