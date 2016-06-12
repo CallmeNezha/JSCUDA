@@ -57,8 +57,8 @@ void DeviceFloat32Array::Init(Local<Object> exports)
 
     // Set Prototype functions in C++
     NODE_SET_PROTOTYPE_METHOD(tpl, "length", length);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "createFrom", createFrom);
     constructor.Reset(isolate, tpl->GetFunction());
+
     exports->Set(String::NewFromUtf8(isolate, "DeviceFloat32Array"), tpl->GetFunction());
 }
 
@@ -115,22 +115,28 @@ void DeviceFloat32Array::length(const FunctionCallbackInfo<Value>& args)
     args.GetReturnValue().Set(Number::New(isolate, obj->getLength()));
 }
 
-// Prototype function
-// Create and initialize buffer value by host Float32Array
-void DeviceFloat32Array::createFrom(const FunctionCallbackInfo<Value>& args)
+// copyFrom( host, offset, count )
+void DeviceFloat32Array::copyFrom(const FunctionCallbackInfo<Value>& args)
 {
     Isolate* isolate = args.GetIsolate();
-    if (!args[0]->IsFloat32Array())
+    DeviceFloat32Array* obj = ObjectWrap::Unwrap<DeviceFloat32Array>(args.Holder());
+
+    if (args[0]->IsFloat32Array())
+    {
+        Local<Float32Array> f32ah = Local<Float32Array>::Cast(args[0]);
+        
+
+        args.GetReturnValue().Set(args.This());
+        return;
+    }
+    else
     {
         isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, jc::typArgError)));
         return;
     }
-    const uint32 argc = 1;
-    Local<Value> argv[argc] = { args[0] }; // Arguments array explicitly
-    Local<Function> cons = Local<Function>::New(isolate, constructor);
-    Local<Context> context = isolate->GetCurrentContext();
-    Local<Object> instance = cons->NewInstance(context, argc, argv).ToLocalChecked();
+}
 
-    args.GetReturnValue().Set(instance);
+void DeviceFloat32Array::copyTo(const FunctionCallbackInfo<Value>& args)
+{
 
 }

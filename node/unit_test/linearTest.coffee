@@ -1,5 +1,5 @@
 assert = require("assert")
-JC = require("./jc/build/Debug/jc.node")
+JC = require("./../jc/build/Debug/jc.node")
 
 
 dumpMatrix = (mat) ->
@@ -182,7 +182,7 @@ describe("CUDA Functions Validation Test"
 
 describe("Linear Library Completeness"
 , ->
-  lb = require("./linear")
+  lb = require("./../linear")
   it("N dimensions Vector inner product"
   , (done) ->  #asynchronized test
       Vector = lb?.Vector

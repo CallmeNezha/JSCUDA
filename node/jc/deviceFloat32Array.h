@@ -20,7 +20,7 @@ public:
     static void Init(Local<Object> exports);
 
     // C++ functions
-    size_t getLength() const{ return m_length; }
+    size_t      getLength() const{ return m_length; }
 
 private:
     explicit DeviceFloat32Array(unsigned int length);
@@ -31,10 +31,9 @@ private:
     static void New(const FunctionCallbackInfo<Value>& args);
 
     //Prototype Function
-    static void createFrom(const FunctionCallbackInfo<Value>& args);
     static void length(const FunctionCallbackInfo<Value>& args);
-
-
+    static void copyFrom(const FunctionCallbackInfo<Value>& args);
+    static void copyTo(const FunctionCallbackInfo<Value>& args);
 };
 
 

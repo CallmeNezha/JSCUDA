@@ -4,7 +4,7 @@
 
   assert = require("assert");
 
-  JC = require("./jc/build/Debug/jc.node");
+  JC = require("./../jc/build/Debug/jc.node");
 
   dumpMatrix = function(mat) {
     var c, i, j, oneRow, r, ref, ref1, results;
@@ -265,7 +265,7 @@
 
   describe("Linear Library Completeness", function() {
     var lb;
-    lb = require("./linear");
+    lb = require("./../linear");
     return it("N dimensions Vector inner product", function(done) {
       var Vector, v1, v2;
       Vector = lb != null ? lb.Vector : void 0;

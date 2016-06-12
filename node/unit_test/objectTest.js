@@ -2,7 +2,7 @@
 (function() {
   var JC, a, array, f32a, f32aa, i, j, k, len, num;
 
-  JC = require("./jc/build/Debug/jc.node");
+  JC = require("./../jc/build/Debug/jc.node");
 
   JC.cudaDeviceInit();
 
@@ -24,6 +24,8 @@
     }
     return results;
   })();
+
+  console.log(array.length);
 
   for (i = j = 0, len = array.length; j < len; i = ++j) {
     a = array[i];
