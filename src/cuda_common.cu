@@ -15,7 +15,7 @@ extern "C"
 {
 
     JSCUDA_DLL_API 
-    void cudaDeviceInit(int argc, char **argv)
+    bool cudaDeviceInit(int argc, char **argv)
     {
         int devID;
         // use command - line specified CUDA device, otherwise use device with highest Gflops / s
@@ -23,12 +23,13 @@ extern "C"
         if (devID < 0)
         {
             printf("No CUDA Capable devices found, exiting...\n");
-            exit(EXIT_SUCCESS);
+            return false;
         }
         cudaDeviceProp deviceProp;
         checkCudaErrors(cudaGetDeviceProperties(&deviceProp, devID));
         U_NUM_BLOCKSIZE = (deviceProp.major < 2) ? 16 : 32;
         U_NUM_THREAD = U_NUM_BLOCKSIZE * U_NUM_BLOCKSIZE;
+        return true;
     }
     JSCUDA_DLL_API
     void cudaDeviceReset_t()
@@ -88,7 +89,7 @@ extern "C"
 
     // global memory write operation in queue maybe not faster than CPU method
     JSCUDA_DLL_API
-    float vectorInnerProduct(const float* v1d, const float* v2d, uint size)
+    float vectorInnerProduct(const float* __restrict__ v1d, const float* __restrict__ v2d, uint size)
     {
         float vout = 0.f;
         for (uint i = 0; i < size; i++)

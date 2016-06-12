@@ -7,11 +7,11 @@
   JC = require("./jc/build/Debug/jc.node");
 
   dumpMatrix = function(mat) {
-    var c, j, k, oneRow, r, ref, ref1, results;
+    var c, i, j, oneRow, r, ref, ref1, results;
     results = [];
-    for (r = j = 0, ref = mat.numRow; 0 <= ref ? j < ref : j > ref; r = 0 <= ref ? ++j : --j) {
+    for (r = i = 0, ref = mat.numRow; 0 <= ref ? i < ref : i > ref; r = 0 <= ref ? ++i : --i) {
       oneRow = "[";
-      for (c = k = 0, ref1 = mat.numCol; 0 <= ref1 ? k < ref1 : k > ref1; c = 0 <= ref1 ? ++k : --k) {
+      for (c = j = 0, ref1 = mat.numCol; 0 <= ref1 ? j < ref1 : j > ref1; c = 0 <= ref1 ? ++j : --j) {
         oneRow += mat.elements[c * mat.numRow + r] + " ";
       }
       oneRow += "]";
@@ -37,17 +37,17 @@
       var end, mat1, mat2, mat3, num, start, v1, v2, v3;
       assert.equal(typeof JC.vectorAdd, 'function');
       v1 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 6; num = ++j) {
+        for (num = i = 0; i < 6; num = ++i) {
           results.push(num);
         }
         return results;
       })());
       v2 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 15; num = ++j) {
+        for (num = i = 0; i < 15; num = ++i) {
           results.push(num);
         }
         return results;
@@ -81,17 +81,17 @@
       var end, mat1, mat2, mat3, num, start, v1, v2, v3;
       assert.equal(typeof JC.vectorAdd, 'function');
       v1 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 6; num = ++j) {
+        for (num = i = 0; i < 6; num = ++i) {
           results.push(num);
         }
         return results;
       })());
       v2 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 15; num = ++j) {
+        for (num = i = 0; i < 15; num = ++i) {
           results.push(num);
         }
         return results;
@@ -132,17 +132,17 @@
       var end, mat1, mat2, mat3, num, start, v1, v2, v3;
       assert.equal(typeof JC.vectorAdd, 'function');
       v1 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 10000; num = ++j) {
+        for (num = i = 0; i < 10000; num = ++i) {
           results.push(Math.random());
         }
         return results;
       })());
       v2 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 10000; num = ++j) {
+        for (num = i = 0; i < 10000; num = ++i) {
           results.push(Math.random());
         }
         return results;
@@ -177,17 +177,17 @@
       var end, num, start, v1, v2, v3;
       assert.equal(typeof JC.vectorAdd, 'function');
       v1 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 100; num = ++j) {
+        for (num = i = 0; i < 100; num = ++i) {
           results.push(Math.random());
         }
         return results;
       })());
       v2 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 100; num = ++j) {
+        for (num = i = 0; i < 100; num = ++i) {
           results.push(Math.random());
         }
         return results;
@@ -200,60 +200,21 @@
       console.log("\t elapse time:  " + (end - start) + " ms");
       return console.log("------------ * ------------------------- * -------------");
     });
-    it("CUDA: vectorAdd(v1,v2,v3) test #2", function() {
-      var end, i, j, num, start, v1, v2, v3;
-      assert.equal(typeof JC.vectorAdd, 'function');
-      v1 = new Float32Array((function() {
-        var j, results;
-        results = [];
-        for (num = j = 0; j < 10000000; num = ++j) {
-          results.push(Math.random());
-        }
-        return results;
-      })());
-      v2 = new Float32Array((function() {
-        var j, results;
-        results = [];
-        for (num = j = 0; j < 10000000; num = ++j) {
-          results.push(Math.random());
-        }
-        return results;
-      })());
-      v3 = new Float32Array((function() {
-        var j, results;
-        results = [];
-        for (num = j = 0; j < 10000000; num = ++j) {
-          results.push(Math.random());
-        }
-        return results;
-      })());
-      start = Date.now();
-      for (i = j = 0; j < 100; i = ++j) {
-        JC.vectorAdd(v1, v2, v3);
-      }
-      end = Date.now();
-      console.log("------------ * ------------------------- * -------------");
-      console.log("\t Array #1:" + v1.slice(0, 3) + "... 1 billion elements");
-      console.log("\t Array #2:" + v2.slice(0, 3) + "... 1 billion elements");
-      console.log("\t Array Out:" + v3.slice(0, 3) + "... 1 billion elements");
-      console.log("\t elapse time:  " + (end - start) + " ms");
-      return console.log("------------ * ------------------------- * -------------");
-    });
     it("CUDA: vectorAdd(v1,v2,v3) test #1", function() {
       var end, num, start, v1, v2, v3;
       assert.equal(typeof JC.vectorAdd, 'function');
       v1 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 1000000; num = ++j) {
+        for (num = i = 0; i < 1000000; num = ++i) {
           results.push(Math.random());
         }
         return results;
       })());
       v2 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 1000000; num = ++j) {
+        for (num = i = 0; i < 1000000; num = ++i) {
           results.push(Math.random());
         }
         return results;
@@ -273,17 +234,17 @@
       var end, num, start, v1, v2, v3;
       assert.equal(typeof JC.vectorAdd, 'function');
       v1 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 100; num = ++j) {
+        for (num = i = 0; i < 100; num = ++i) {
           results.push(Math.random());
         }
         return results;
       })());
       v2 = new Float32Array((function() {
-        var j, results;
+        var i, results;
         results = [];
-        for (num = j = 0; j < 100; num = ++j) {
+        for (num = i = 0; i < 100; num = ++i) {
           results.push(Math.random());
         }
         return results;

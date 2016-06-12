@@ -3,17 +3,8 @@
 
 #include <node.h>
 #include "cuda_common.h"
-using v8::Exception;
-using v8::FunctionCallbackInfo;
-using v8::Isolate;
-using v8::Local;
-using v8::Array;
-using v8::Float32Array;
-using v8::ArrayBuffer;
-using v8::Number;
-using v8::Object;
-using v8::String;
-using v8::Value;
+using namespace v8;
+
 // This is the implementation of the "add" method
 // Input arguments are passed using the
 // const FunctionCallbackInfo<Value>& args struct

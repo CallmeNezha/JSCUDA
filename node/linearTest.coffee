@@ -142,23 +142,6 @@ describe("CUDA Functions Validation Test"
     console.log("\t elapse time:  #{ end - start } ms")
     console.log("------------ * ------------------------- * -------------")
   )
-  it("CUDA: vectorAdd(v1,v2,v3) test #2"
-  , () ->  #asynchronized test
-    assert.equal(typeof JC.vectorAdd, 'function')
-    v1 = new Float32Array((Math.random() for num in [0...1e7]))
-    v2 = new Float32Array((Math.random() for num in [0...1e7]))
-    v3 = new Float32Array((Math.random() for num in [0...1e7]))
-    start = Date.now()
-    for i in [0...100]
-      JC.vectorAdd(v1, v2, v3)
-    end = Date.now()
-    console.log("------------ * ------------------------- * -------------")
-    console.log("\t Array #1:#{v1[0...3]}... 1 billion elements")
-    console.log("\t Array #2:#{v2[0...3]}... 1 billion elements")
-    console.log("\t Array Out:#{v3[0...3]}... 1 billion elements")
-    console.log("\t elapse time:  #{ end - start } ms")
-    console.log("------------ * ------------------------- * -------------")
-  )
 
   it("CUDA: vectorAdd(v1,v2,v3) test #1"
   , () ->  #asynchronized test

@@ -30,7 +30,7 @@ extern "C"
 
     typedef struct cublasContext *  cublasHandle_t;
 
-    JSCUDA_DLL_API void      cudaDeviceInit(int argc, char **argv);
+    JSCUDA_DLL_API bool      cudaDeviceInit(int argc, char **argv);
     JSCUDA_DLL_API void      cudaDeviceReset_t();
     JSCUDA_DLL_API void      cudaMalloc_t(void **devPtr, size_t size);
     JSCUDA_DLL_API void      cudaFree_t(void *devPtr);

@@ -3,17 +3,8 @@
 
 #include <node.h>
 #include "cuda_common.h"
-using v8::Exception;
-using v8::FunctionCallbackInfo;
-using v8::Isolate;
-using v8::Local;
-using v8::Array;
-using v8::Float32Array;
-using v8::ArrayBuffer;
-using v8::Number;
-using v8::Object;
-using v8::String;
-using v8::Value;
+#include "error_message.h"
+using namespace v8;
 
 
 void matrixMulMatrix(const FunctionCallbackInfo<Value>& args) {
@@ -23,7 +14,7 @@ void matrixMulMatrix(const FunctionCallbackInfo<Value>& args) {
     if (args.Length() != 3) {
         // Throw an Error that is passed back to JavaScript
         isolate->ThrowException(Exception::TypeError(
-            String::NewFromUtf8(isolate, "Wrong number of arguments")));
+            String::NewFromUtf8(isolate, jc::numArgError)));
         return;
     }
 
