@@ -1,8 +1,10 @@
 #ifndef __JC_PARAMTER_H__
 #define __JC_PARAMTER_H__
 
+#include "jc_api.h"
+
 // Parameters
-#define DEBUG_OUTPUT_ON 
+#define DEBUG_OUTPUT_ON  0
 
 
 // Type alias
@@ -12,7 +14,9 @@ typedef unsigned int    uint32;
 
 
 // Global extern
-extern bool jc_bCudaInitialized;
+extern bool                    jcg_bCudaInitialized;
+extern jc_cuda::cublasHandle_t jcg_cublasHandle;
+
 
 
 

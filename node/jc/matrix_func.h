@@ -2,7 +2,7 @@
 #define __MATRIX_H__
 
 #include <node.h>
-#include "cuda_common.h"
+#include "jc_api.h"
 #include "error_message.h"
 using namespace v8;
 
@@ -34,23 +34,7 @@ void matrixMulMatrix(const FunctionCallbackInfo<Value>& args) {
     matC.numRow = (unsigned int)matCh->Get(numRow)->NumberValue();
     matC.numCol = (unsigned int)matCh->Get(numCol)->NumberValue();
 
-    if (matA.numCol != matB.numRow || matA.numRow != matC.numRow || matB.numCol != matC.numCol)
-    {
-        isolate->ThrowException(Exception::TypeError(
-            String::NewFromUtf8(isolate, "Wrong Matrix Size")));
-        return;
-    }
-
-    // Check elements type & buffer size
     auto elements = String::NewFromUtf8(isolate, "elements");
-
-    // Check the argument types
-    if (!matAh->Get(elements)->IsFloat32Array() || !matBh->Get(elements)->IsFloat32Array() || !matCh->Get(elements)->IsFloat32Array())
-    {
-        isolate->ThrowException(Exception::TypeError(
-            String::NewFromUtf8(isolate, "Wrong Matrix elements type")));
-        return;
-    }
 
     Local<Float32Array> matAeh = Local<Float32Array>::Cast(matAh->Get(elements));
     Local<Float32Array> matBeh = Local<Float32Array>::Cast(matBh->Get(elements));
@@ -79,10 +63,12 @@ void matrixMulMatrix(const FunctionCallbackInfo<Value>& args) {
     jc_cuda::cudaMemcpyHostToDevice_t(v1bh->GetContents().Data()
         , v1d
         , 0
+        , 0
         , matAeh->Length() * sizeof(float)
         );
     jc_cuda::cudaMemcpyHostToDevice_t(v2bh->GetContents().Data()
         , v2d
+        , 0
         , 0
         , matBeh->Length() * sizeof(float)
         );
@@ -92,9 +78,10 @@ void matrixMulMatrix(const FunctionCallbackInfo<Value>& args) {
 
     jc_cuda::cublasHandle_t handle = nullptr;
     jc_cuda::cublasCreate_t(&handle);
-    jc_cuda::matrixMulMatrix_blas(handle, matA, matB, matC);
+    jc_cuda::matrixMulMatrix(handle, matA, matB, matC);
     jc_cuda::cudaMemcpyDeviceToHost_t(v3d
         , v3bh->GetContents().Data()
+        , 0
         , 0
         , matCeh->Length() * sizeof(float)
         );

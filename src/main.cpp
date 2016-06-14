@@ -1,13 +1,24 @@
-#include "cuda_common.h"
+#include "jc_api.h"
 #include <cstdio>
 #include <vector>
 #include <memory>
 #include <windows.h>
+using namespace jc_cuda;
 
 #define dumpMatrix_m(mat)         printf("Dumping matrix %s: \n",#mat);dumpMatrix(mat);
 
-using namespace jc_cuda;
 void dumpMatrix(Matrix&);
+
+#define dumpHostVector_m(ptr,count)   printf("Dumping vector %s: \n",#ptr);dumpHostVector(ptr,count);
+void dumpHostVector(float *ptr, unsigned int count)
+{
+    printf("[ ");
+    for (unsigned int i = 0; i < count; ++i)
+    {
+        printf("%f ", ptr[i]);
+    }
+    printf("]\n");
+}
 
 double PCFreq = 0.0;
 __int64 CounterStart = 0;
@@ -29,62 +40,14 @@ double GetCounter()
     return double(li.QuadPart - CounterStart) / PCFreq;
 }
 
-
-void matrixMultiplyTest();
+bool testVectorAdd(int argc, char **argv);
 int main(int argc, char **argv)
 {
-    matrixMultiplyTest();
+    testVectorAdd(argc, argv);
+    getchar();
+    return 0;
 }
-void matrixMultiplyTest()
-{
 
-    Matrix matAh = Matrix{ 2, 3, new float[6] };
-    Matrix matBh = Matrix{ 3, 5, new float[15] };
-    Matrix matCh = Matrix{ 2, 5, new float[10] };
-    for (unsigned int i = 0; i < 6; ++i)
-    {
-        matAh.elements[i] = (float)i;
-    }
-    for (unsigned int i = 0; i < 15; ++i)
-    {
-        matBh.elements[i] = (float)i;
-    }
-    dumpMatrix_m(matAh);
-    dumpMatrix_m(matBh);
-    Matrix matAd = matAh;
-    matAd.elements = nullptr;
-    Matrix matBd = matBh;
-    matBd.elements = nullptr;
-    Matrix matCd = matCh;
-    matCd.elements = nullptr;
-    cudaMalloc_t((void**)&matAd.elements, 6 * sizeof(float));
-    cudaMalloc_t((void**)&matBd.elements, 15 * sizeof(float));
-    cudaMalloc_t((void**)&matCd.elements, 10 * sizeof(float));
-    cudaMemcpyHostToDevice_t(matAh.elements, matAd.elements, 0, 6 * sizeof(float));
-    cudaMemcpyHostToDevice_t(matBh.elements, matBd.elements, 0, 15 * sizeof(float));
-
-    cublasHandle_t handle = nullptr;
-#ifdef _DEBUG
-    printf("Entering cuBLAS context...\n");
-#endif
-    cublasCreate_t(&handle);
-#ifdef _DEBUG
-    printf("Matrix multiplying...\n");
-#endif
-    matrixMulMatrix_blas(handle, matAd, matBd, matCd);
-    matrixMulMatrix_blas(handle, matAd, matBd, matCd);
-    cudaMemcpyDeviceToHost_t(matCd.elements, matCh.elements, 0, 10 * sizeof(float));
-    dumpMatrix_m(matCh);
-#ifdef _DEBUG
-    printf("Leaving cuBLAS context...\n");
-#endif
-    cublasDestroy_t(handle);
-    cudaFree_t(matAd.elements);
-    cudaFree_t(matBd.elements);
-    cudaFree_t(matCd.elements);
-    delete matAh.elements;
-    delete matBh.elements;
-}
 
 void dumpMatrix(Matrix& mat)
 {
@@ -106,36 +69,33 @@ void dumpMatrix(Matrix& mat)
 
 bool testVectorAdd(int argc, char **argv)
 {
-    cudaDeviceInit(argc, argv);
-    auto v1 = std::unique_ptr<std::vector<float>>(new std::vector<float>(10, 3));
-    auto v2 = std::unique_ptr<std::vector<float>>(new std::vector<float>(10, 4));
-    auto v3 = std::unique_ptr<std::vector<float>>(new std::vector<float>(10, 6));
-    for (unsigned int i = 0; i < 5; i++)
+    cudaDeviceInit(0, nullptr);
+    cublasHandle_t handle;
+    cublasCreate_t(&handle);
+    auto vAh = new float[10];
+    auto vBh = new float[10];
+    for (int i = 0; i < 10; i++)
     {
-        printf("%f ,", v3->at(i));
+        vAh[i] = i;
+        vBh[i] = i;
     }
-    StartCounter();
-    float *v1d, *v2d, *v3d;
-    unsigned int size = 10 * sizeof(float);
-    cudaMalloc_t((void**)&v1d, size);
-    cudaMalloc_t((void**)&v2d, size);
-    cudaMalloc_t((void**)&v3d, size);
-    cudaMemcpyHostToDevice_t(&(v1->at(0)), v1d, 0, size);
-    cudaMemcpyHostToDevice_t(&(v2->at(0)), v2d, 0, size);
-    vectorAdd(v1d, v2d, v3d, 10);
-    cudaMemcpyDeviceToHost_t(v3d, &(v3->at(0)), 0, size);
-    double consumeTime = GetCounter();
-    for (unsigned int i = 0; i < 5; i++)
-    {
-        printf("%f ,", v3->at(i));
-    }
-    printf("\n consumeTime: %f", consumeTime);
+    float *vAd, *vBd;
+    cudaMalloc_t((void**)&vAd, 10 * sizeof(float));
+    cudaMalloc_t((void**)&vBd, 10 * sizeof(float));
 
-    getchar();
+    cudaMemcpyHostToDevice_t(vAh, vAd, 0, 0, 10 * sizeof(float));
+    cudaMemcpyHostToDevice_t(vBh, vBd, 0, 0, 10 * sizeof(float));
 
-    cudaFree_t(v1d);
-    cudaFree_t(v2d);
-    cudaFree_t(v3d);
+    Vector v1{ 10, vAd };
+    Vector v2{ 10, vBd };
+
+    vectorAdd(handle, v2, v1);
+    cudaMemcpyDeviceToHost_t(vAd, vAh, 0, 0, 10 * sizeof(float));
+    cudaMemcpyDeviceToHost_t(vBd, vBh, 0, 0, 10 * sizeof(float));
+    cublasDestroy_t(handle);
     cudaDeviceReset_t();
+    dumpHostVector_m(vAh, 10);
+    dumpHostVector_m(vBh, 10);
     return true;
+
 }

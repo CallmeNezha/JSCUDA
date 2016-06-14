@@ -11,7 +11,7 @@ using namespace v8;
 class DeviceFloat32Array final : public node::ObjectWrap
 {
 private:
-    float*      m_ptrd;   // point to device memory
+    float32*    m_ptrd;   // point to device memory
     size_t      m_length; // length of array
 
     static Persistent<Function> constructor;
@@ -21,9 +21,10 @@ public:
 
     // C++ functions
     size_t      getLength() const{ return m_length; }
+    float32*    getData()        { return m_ptrd; }
 
 private:
-    explicit DeviceFloat32Array(unsigned int length);
+    explicit DeviceFloat32Array(size_t length);
     explicit DeviceFloat32Array(const Local<Float32Array>& f32a);
     ~DeviceFloat32Array();
 
@@ -31,9 +32,12 @@ private:
     static void New(const FunctionCallbackInfo<Value>& args);
 
     //Prototype Function
-    static void length(const FunctionCallbackInfo<Value>& args);
+    //static void length  (const FunctionCallbackInfo<Value>& args);
+    static void copy    (const FunctionCallbackInfo<Value>& args);
     static void copyFrom(const FunctionCallbackInfo<Value>& args);
-    static void copyTo(const FunctionCallbackInfo<Value>& args);
+    static void copyTo  (const FunctionCallbackInfo<Value>& args);
+    static void destroy (const FunctionCallbackInfo<Value>& args);
+    static void swap    (const FunctionCallbackInfo<Value>& args);
 };
 
 
