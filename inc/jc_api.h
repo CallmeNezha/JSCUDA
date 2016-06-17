@@ -33,8 +33,19 @@ extern "C"
         unsigned int numRow;
         unsigned int numCol;
         float*       elements;
+        bool         transposed;
         // In column major
     } Matrix;
+
+    typedef struct
+    {
+        unsigned int numRow;
+        unsigned int numCol;
+        float**      elementsArray;
+        bool         transposed;
+        unsigned int count;
+        // In column major
+    } MatrixBatch;
 
     typedef struct
     {
@@ -94,8 +105,9 @@ extern "C"
 
     // Matrix related
     JSCUDA_DLL_API ErrorType matrixMulScalar(const cublasHandle_t handle, Matrix& matd, const float* scalarh);
-    JSCUDA_DLL_API ErrorType matrixMulVector(const cublasHandle_t handle, const Matrix& matAd, bool transMatA, const Vector& vAd, Vector& vBd);
-    JSCUDA_DLL_API ErrorType matrixMulMatrix(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
+    JSCUDA_DLL_API ErrorType matrixMulVector(const cublasHandle_t handle, const Matrix& matAd, const Vector& vAd, Vector& vBd);
+    JSCUDA_DLL_API ErrorType matrixMulMatrix(const cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
+    JSCUDA_DLL_API ErrorType matrixMulMatrixBatched(const cublasHandle_t handle, const MatrixBatch& matAd, const MatrixBatch& matBd, MatrixBatch& matCd);
     /*JSCUDA_DLL_API ErrorType matrixEigen(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
     JSCUDA_DLL_API ErrorType matrixUTri(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
     JSCUDA_DLL_API ErrorType matrixDTri(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);

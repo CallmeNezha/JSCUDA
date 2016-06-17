@@ -226,13 +226,33 @@ extern "C"
         return JC_SUCCESS;
     }
 
+    // mat = vA * vB^T
+    JSCUDA_DLL_API
+        ErrorType vectorRank(const cublasHandle_t handle, const Vector& vAd, const Vector& vBd, Matrix& matd)
+    {
+        if (vAd.length != matd.numRow || vBd.length != matd.numCol) return JC_PARAM_ERROR;
+        const float alpha = 1.f;
+        checkCudaErrors(cublasSger(handle
+            , matd.numRow
+            , matd.numCol
+            , &alpha
+            , vAd.elements
+            , 1
+            , vBd.elements
+            , 1
+            , matd.elements
+            , matd.numRow
+            ));
+        return JC_SUCCESS;
+    }
+
 
     // Vector - Matrix functions
     JSCUDA_DLL_API
-        ErrorType matrixMulVector(const cublasHandle_t handle, const Matrix& matAd, bool transMatA, const Vector& vAd, Vector& vBd)
+        ErrorType matrixMulVector(const cublasHandle_t handle, const Matrix& matAd, const Vector& vAd, Vector& vBd)
     {
         cublasOperation_t opt;
-        if (transMatA)
+        if (matAd.transposed)
         {
             if (matAd.numCol != vBd.length || matAd.numRow != vAd.length) return JC_PARAM_ERROR;
             opt = CUBLAS_OP_T;
@@ -260,25 +280,6 @@ extern "C"
             ));
         return JC_SUCCESS;
     }
-    // mat = vA * vB^T
-    JSCUDA_DLL_API
-        ErrorType vectorRank(const cublasHandle_t handle, const Vector& vAd, const Vector& vBd, Matrix& matd)
-    {
-        if (vAd.length != matd.numRow || vBd.length != matd.numCol) return JC_PARAM_ERROR;
-        const float alpha = 1.f;
-        checkCudaErrors(cublasSger(handle
-            , matd.numRow
-            , matd.numCol
-            , &alpha
-            , vAd.elements
-            , 1
-            , vBd.elements
-            , 1
-            , matd.elements
-            , matd.numRow
-            ));
-        return JC_SUCCESS;
-    }
 
 
     // Matrix functions
@@ -291,7 +292,7 @@ extern "C"
     }
 
     JSCUDA_DLL_API
-        ErrorType matrixMulMatrix(const cublasHandle_t handle, const Matrix& matAd, bool transMatA, const Matrix& matBd, bool transMatB, Matrix& matCd)
+        ErrorType matrixMulMatrix(const cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd)
     {
         if (matAd.numCol < 1 || matAd.numRow < 1 ||
             matBd.numCol < 1 || matBd.numRow < 1 ||
@@ -301,7 +302,7 @@ extern "C"
         cublasOperation_t optA, optB;
         unsigned int lda, ldb, k;
 
-        if (!transMatA && !transMatB)
+        if (!matAd.transposed && !matBd.transposed)
         {
             if (matAd.numCol != matBd.numRow)         return JC_PARAM_ERROR;
             if (matAd.numRow != matCd.numRow || matBd.numCol != matCd.numCol) return JC_PARAM_ERROR;
@@ -312,7 +313,7 @@ extern "C"
             k = matAd.numCol;
 
         }
-        else if (transMatA && !transMatB)
+        else if (matAd.transposed && !matBd.transposed)
         {
             if (matAd.numRow != matBd.numRow)         return JC_PARAM_ERROR;
             if (matAd.numCol != matCd.numRow || matBd.numCol != matCd.numCol) return JC_PARAM_ERROR;
@@ -322,7 +323,7 @@ extern "C"
             ldb = matBd.numRow;
             k = matAd.numRow;
         }
-        else if (!transMatA && transMatB)
+        else if (!matAd.transposed && matBd.transposed)
         {
             if (matAd.numCol != matBd.numCol)         return JC_PARAM_ERROR;
             if (matAd.numRow != matCd.numRow || matBd.numRow != matCd.numCol) return JC_PARAM_ERROR;
@@ -332,7 +333,7 @@ extern "C"
             ldb = matBd.numCol;
             k = matAd.numCol;
         }
-        else if (transMatA && transMatB)
+        else if (matAd.transposed && matBd.transposed)
         {
             if (matAd.numRow != matBd.numCol)         return JC_PARAM_ERROR;
             if (matAd.numCol != matCd.numRow || matBd.numRow != matCd.numCol) return JC_PARAM_ERROR;
@@ -362,6 +363,83 @@ extern "C"
             , matCd.numRow
             ));
         
+        return JC_SUCCESS;
+    }
+
+    
+    JSCUDA_DLL_API
+        ErrorType matrixMulMatrixBatched(const cublasHandle_t handle, const MatrixBatch& matAd, const MatrixBatch& matBd, MatrixBatch& matCd)
+    {
+        if (matAd.numCol < 1 || matAd.numRow < 1 ||
+            matBd.numCol < 1 || matBd.numRow < 1 ||
+            matCd.numCol < 1 || matCd.numRow < 1) return JC_PARAM_ERROR;
+
+
+        cublasOperation_t optA, optB;
+        unsigned int lda, ldb, k;
+
+        if (!matAd.transposed && !matBd.transposed)
+        {
+            if (matAd.numCol != matBd.numRow)         return JC_PARAM_ERROR;
+            if (matAd.numRow != matCd.numRow || matBd.numCol != matCd.numCol) return JC_PARAM_ERROR;
+            optA = CUBLAS_OP_N;
+            optB = CUBLAS_OP_N;
+            lda = matAd.numRow;
+            ldb = matBd.numRow;
+            k = matAd.numCol;
+
+        }
+        else if (matAd.transposed && !matBd.transposed)
+        {
+            if (matAd.numRow != matBd.numRow)         return JC_PARAM_ERROR;
+            if (matAd.numCol != matCd.numRow || matBd.numCol != matCd.numCol) return JC_PARAM_ERROR;
+            optA = CUBLAS_OP_T;
+            optB = CUBLAS_OP_N;
+            lda = matAd.numCol;
+            ldb = matBd.numRow;
+            k = matAd.numRow;
+        }
+        else if (!matAd.transposed && matBd.transposed)
+        {
+            if (matAd.numCol != matBd.numCol)         return JC_PARAM_ERROR;
+            if (matAd.numRow != matCd.numRow || matBd.numRow != matCd.numCol) return JC_PARAM_ERROR;
+            optA = CUBLAS_OP_N;
+            optB = CUBLAS_OP_T;
+            lda = matAd.numRow;
+            ldb = matBd.numCol;
+            k = matAd.numCol;
+        }
+        else if (matAd.transposed && matBd.transposed)
+        {
+            if (matAd.numRow != matBd.numCol)         return JC_PARAM_ERROR;
+            if (matAd.numCol != matCd.numRow || matBd.numRow != matCd.numCol) return JC_PARAM_ERROR;
+            optA = CUBLAS_OP_T;
+            optB = CUBLAS_OP_T;
+            lda = matAd.numCol;
+            ldb = matBd.numCol;
+            k = matAd.numRow;
+        }
+
+        const float alpha = 1.f;
+        const float beta = 0.f;
+        
+        cublasSgemmBatched(handle
+            , optA
+            , optB
+            , matCd.numRow
+            , matCd.numCol
+            , k
+            , &alpha
+            , (const float**)matAd.elementsArray
+            , lda
+            , (const float**)matBd.elementsArray
+            , ldb
+            , &beta
+            , matCd.elementsArray
+            , matCd.numRow
+            , matAd.count
+            );
+
         return JC_SUCCESS;
     }
 

@@ -43,8 +43,21 @@ jc_cuda::Matrix unwrapMatrix(Isolate* isolate, v8::Local<Value>& arg)
     auto numRow = String::NewFromUtf8(isolate, "numRow");
     auto numCol = String::NewFromUtf8(isolate, "numCol");
     auto elements = String::NewFromUtf8(isolate, "elements");
+    auto transposed = String::NewFromUtf8(isolate, "transposed");
     DeviceFloat32Array* matf32ad = node::ObjectWrap::Unwrap<DeviceFloat32Array>(mat->Get(elements)->ToObject());
-    jc_cuda::Matrix matd{ mat->Get(numRow)->Uint32Value(), mat->Get(numCol)->Uint32Value(), matf32ad->getData() };
+    
+    uint32 numRow_r, numCol_r; // Restore original number of row, column
+    bool transposed_t = mat->Get(transposed)->BooleanValue();
+    if (transposed_t)
+        numRow_r = mat->Get(numCol)->Uint32Value(), numCol_r = mat->Get(numRow)->Uint32Value();
+    else
+        numRow_r = mat->Get(numRow)->Uint32Value(), numCol_r = mat->Get(numCol)->Uint32Value();
+
+    jc_cuda::Matrix matd{ numRow_r
+        , numCol_r
+        , matf32ad->getData()
+        , transposed_t
+        };
     return matd;
 }
 

@@ -28,11 +28,7 @@ void vectorAdd(const FunctionCallbackInfo<Value>& args)
 {
     Isolate* isolate = args.GetIsolate();
 
-    if (nullptr == jcg_cublasHandle)   
-    {                                                           
-        isolate->ThrowException(Exception::ReferenceError(String::NewFromUtf8(isolate, jc::cublasError)));    
-        return;                                                 
-    }
+    CUBLAS_HANDLE_CHECK_RETURN;
 
     jc_cuda::Vector vAd = unwrapVector(isolate, args[0]);
     jc_cuda::Vector vBd = unwrapVector(isolate, args[1]);
@@ -91,7 +87,7 @@ void vectorSwap(const FunctionCallbackInfo<Value>& args)
     checkJCErrors(jc_cuda::vectorSwap(jcg_cublasHandle, vAd, vBd));
 }
 
-// vAd dot vBd
+// return = vAd dot vBd
 void vectorDot(const FunctionCallbackInfo<Value>& args)
 {
     Isolate* isolate = args.GetIsolate();
@@ -108,7 +104,7 @@ void vectorDot(const FunctionCallbackInfo<Value>& args)
 
 // vd Euclidean norm
 void vectorNorm(const FunctionCallbackInfo<Value>& args)
-{
+ {
     Isolate* isolate = args.GetIsolate();
 
     CUBLAS_HANDLE_CHECK_RETURN;

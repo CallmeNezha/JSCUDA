@@ -1,4 +1,4 @@
-#include "deviceFloat32Array.h"
+#include "DeviceFloat32Array.h"
 #include "jc_api.h"
 #include "jc_parameter.h"
 #include "error_message.h"
@@ -58,6 +58,8 @@ void DeviceFloat32Array::Init(Local<Object> exports)
 
     // Set Prototype functions in C++
     //NODE_SET_PROTOTYPE_METHOD(tpl, "length"  , length  );
+    
+    NODE_SET_PROTOTYPE_METHOD(tpl, "swap", swap);
     NODE_SET_PROTOTYPE_METHOD(tpl, "copy", copy);
     NODE_SET_PROTOTYPE_METHOD(tpl, "copyFrom", copyFrom);
     NODE_SET_PROTOTYPE_METHOD(tpl, "copyTo"  , copyTo  );
@@ -88,7 +90,7 @@ void DeviceFloat32Array::New(const FunctionCallbackInfo<Value>& args)
             DeviceFloat32Array* obj = new DeviceFloat32Array(length);
             obj->Wrap(args.This());
             // Add properties here
-            args.This()->Set(String::NewFromUtf8(isolate, "length"), Uint32::New(isolate, obj->getLength()));
+            args.This()->Set(String::NewFromUtf8(isolate, "length"), Uint32::NewFromUnsigned(isolate, (uint32)obj->getLength()));
             args.GetReturnValue().Set(args.This());
             return;
         }
@@ -99,7 +101,7 @@ void DeviceFloat32Array::New(const FunctionCallbackInfo<Value>& args)
             DeviceFloat32Array* obj = new DeviceFloat32Array(f32ah);
             obj->Wrap(args.This());
             // Add properties here
-            args.This()->Set(String::NewFromUtf8(isolate, "length"), Uint32::New(isolate, obj->getLength()));
+            args.This()->Set(String::NewFromUtf8(isolate, "length"), Uint32::NewFromUnsigned(isolate, (uint32)obj->getLength()));
             args.GetReturnValue().Set(args.This());
             return;
         }
@@ -207,7 +209,7 @@ void DeviceFloat32Array::copyTo(const FunctionCallbackInfo<Value>& args)
     }
 }
 
-// copyTo( src, offset_d, offset_s, size )
+// copy( src, offset_d, offset_s, size )
 void DeviceFloat32Array::copy(const FunctionCallbackInfo<Value>& args)
 {
     Isolate* isolate = args.GetIsolate();
@@ -256,8 +258,8 @@ void DeviceFloat32Array::swap(const FunctionCallbackInfo<Value>& args)
         f32ad->m_length = f32bd->m_length;
         f32bd->m_length = tmp;
 
-        args.Holder()->Set(String::NewFromUtf8(isolate, "length"), Uint32::NewFromUnsigned(isolate, f32ad->m_length));
-        args[0]->ToObject()->Set(String::NewFromUtf8(isolate, "length"), Uint32::NewFromUnsigned(isolate, f32bd->m_length));
+        args.Holder()->Set(String::NewFromUtf8(isolate, "length"), Uint32::NewFromUnsigned(isolate, (uint32)f32ad->m_length));
+        args[0]->ToObject()->Set(String::NewFromUtf8(isolate, "length"), Uint32::NewFromUnsigned(isolate, (uint32)f32bd->m_length));
 
         auto tmptr = f32ad->m_ptrd;
         f32ad->m_ptrd = f32bd->m_ptrd;

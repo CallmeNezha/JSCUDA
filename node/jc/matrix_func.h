@@ -3,95 +3,97 @@
 
 #include <node.h>
 #include "jc_api.h"
+#include "jc_helper.h"
+#include "jc_parameter.h"
 #include "error_message.h"
+
 using namespace v8;
 
 
-void matrixMulMatrix(const FunctionCallbackInfo<Value>& args) {
+// matd = scalar * matd
+void matrixMulScalar(const FunctionCallbackInfo<Value>& args)
+{
     Isolate* isolate = args.GetIsolate();
 
-    // Check the number of arguments passed.
-    if (args.Length() != 3) {
-        // Throw an Error that is passed back to JavaScript
-        isolate->ThrowException(Exception::TypeError(
-            String::NewFromUtf8(isolate, jc::numArgError)));
-        return;
-    }
+    CUBLAS_HANDLE_CHECK_RETURN;
 
-    jc_cuda::Matrix matA, matB, matC;
-
-    // Check the matrix size
-    Local<Object> matAh = Local<Object>::Cast(args[0]); // All *T is T's pointer return
-    Local<Object> matBh = Local<Object>::Cast(args[1]);
-    Local<Object> matCh = Local<Object>::Cast(args[2]);
-    bool ret = false;
-
-    auto numRow = String::NewFromUtf8(isolate, "numRow"), numCol = String::NewFromUtf8(isolate, "numCol");
-    matA.numRow = (unsigned int)matAh->Get(numRow)->NumberValue();
-    matA.numCol = (unsigned int)matAh->Get(numCol)->NumberValue();
-    matB.numRow = (unsigned int)matBh->Get(numRow)->NumberValue();
-    matB.numCol = (unsigned int)matBh->Get(numCol)->NumberValue();
-    matC.numRow = (unsigned int)matCh->Get(numRow)->NumberValue();
-    matC.numCol = (unsigned int)matCh->Get(numCol)->NumberValue();
-
-    auto elements = String::NewFromUtf8(isolate, "elements");
-
-    Local<Float32Array> matAeh = Local<Float32Array>::Cast(matAh->Get(elements));
-    Local<Float32Array> matBeh = Local<Float32Array>::Cast(matBh->Get(elements));
-    Local<Float32Array> matCeh = Local<Float32Array>::Cast(matCh->Get(elements));
-    if (matAeh->Length() != matA.numRow * matA.numCol
-        || matBeh->Length() != matB.numRow * matB.numCol
-        || matCeh->Length() != matC.numRow * matC.numCol)
-        ret = true;
-
-    if (ret)
-    {
-        isolate->ThrowException(Exception::TypeError(
-            String::NewFromUtf8(isolate, "Wrong arguments")));
-        return;
-    }
-
-
-    // Perform the operation
-    Local<ArrayBuffer> v1bh = matAeh->Buffer();
-    Local<ArrayBuffer> v2bh = matBeh->Buffer();
-    Local<ArrayBuffer> v3bh = matCeh->Buffer();
-    float *v1d, *v2d, *v3d;
-    jc_cuda::cudaMalloc_t((void**)&v1d, sizeof(float) * (matAeh->Length() + matBeh->Length() + matCeh->Length()));
-    v2d = &(v1d[matAeh->Length()]);
-    v3d = &(v1d[matAeh->Length() + matBeh->Length()]);
-    jc_cuda::cudaMemcpyHostToDevice_t(v1bh->GetContents().Data()
-        , v1d
-        , 0
-        , 0
-        , matAeh->Length() * sizeof(float)
-        );
-    jc_cuda::cudaMemcpyHostToDevice_t(v2bh->GetContents().Data()
-        , v2d
-        , 0
-        , 0
-        , matBeh->Length() * sizeof(float)
-        );
-    matA.elements = v1d;
-    matB.elements = v2d;
-    matC.elements = v3d;
-
-    jc_cuda::cublasHandle_t handle = nullptr;
-    jc_cuda::cublasCreate_t(&handle);
-    jc_cuda::matrixMulMatrix(handle, matA, matB, matC);
-    jc_cuda::cudaMemcpyDeviceToHost_t(v3d
-        , v3bh->GetContents().Data()
-        , 0
-        , 0
-        , matCeh->Length() * sizeof(float)
-        );
-    jc_cuda::cublasDestroy_t(handle);
-    jc_cuda::cudaFree_t(v1d);
-
-    //// Set the return value (using the passed in
-    //// FunctionCallbackInfo<Value>&)
-    //// args.GetReturnValue().Set(num);
+    jc_cuda::Matrix matd = unwrapMatrix(isolate, args[0]);
+    float32 scalar = (float32)args[1]->NumberValue();
+    checkJCErrors(jc_cuda::matrixMulScalar(jcg_cublasHandle
+        , matd
+        , &scalar
+        ));
 }
 
+// vBd = matd(^T) * vAd
+void matrixMulVector(const FunctionCallbackInfo<Value>& args)
+{
+    Isolate* isolate = args.GetIsolate();
 
+    CUBLAS_HANDLE_CHECK_RETURN;
+
+    jc_cuda::Matrix matd = unwrapMatrix(isolate, args[0]);
+    jc_cuda::Vector vAd = unwrapVector(isolate, args[1]);
+    jc_cuda::Vector vBd = unwrapVector(isolate, args[2]);
+    checkJCErrors(jc_cuda::matrixMulVector(jcg_cublasHandle
+        , matd
+        , vAd
+        , vBd
+        ));
+
+}
+
+// matCd = matAd(^T) * matBd(^T)
+void matrixMulMatrix(const FunctionCallbackInfo<Value>& args)
+{
+    Isolate* isolate = args.GetIsolate();
+
+    CUBLAS_HANDLE_CHECK_RETURN;
+
+    jc_cuda::Matrix matAd = unwrapMatrix(isolate, args[0]);
+    jc_cuda::Matrix matBd = unwrapMatrix(isolate, args[1]);
+    jc_cuda::Matrix matCd = unwrapMatrix(isolate, args[2]);
+    checkJCErrors(jc_cuda::matrixMulMatrix(jcg_cublasHandle
+        , matAd
+        , matBd
+        , matCd
+        ));
+}
+
+// matCd = matAd(^T) * matBd(^T) batched
+// TODO: complete batch operation
+void matrixMulMatrixBatched(const FunctionCallbackInfo<Value>& args)
+{
+    Isolate* isolate = args.GetIsolate();
+
+    CUBLAS_HANDLE_CHECK_RETURN;
+
+    auto matAbatch = Local<Object>::Cast(args[0]);
+    auto matBbatch = Local<Object>::Cast(args[1]);
+    auto matCbatch = Local<Object>::Cast(args[2]);
+
+    auto numRow = String::NewFromUtf8(isolate, "numRow");
+    auto numCol = String::NewFromUtf8(isolate, "numCol");
+    auto transposed = String::NewFromUtf8(isolate, "transposed");
+    auto count = String::NewFromUtf8(isolate, "count");
+    auto elementsArray = String::NewFromUtf8(isolate, "elementsArray");
+
+    auto matAea = Local<Array>::Cast(matAbatch->Get(elementsArray));
+
+    for (uint32 i = 0; i < matAea->Length(); i++)
+    {
+        DeviceFloat32Array* vecf32ad = node::ObjectWrap::Unwrap<DeviceFloat32Array>(matAea->Get(i)->ToObject());
+        vecf32ad->getData();
+    }
+    
+    jc_cuda::MatrixBatch mb{};
+
+    //checkJCErrors(jc_cuda::matrixMulMatrixBatched(jcg_cublasHandle
+    //    , matAd
+    //    , transA
+    //    , matBd
+    //    , transB
+    //    , matCd
+    //    ));
+}
 #endif //!__MATRIX_H__

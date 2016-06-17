@@ -43,8 +43,9 @@ double GetCounter()
 bool testVectorAdd(int argc, char **argv);
 int main(int argc, char **argv)
 {
-    testVectorAdd(argc, argv);
-    getchar();
+    //testVectorAdd(argc, argv);
+    float result = 1234.56f * 2345.67f;
+    printf("%f", result);
     return 0;
 }
 

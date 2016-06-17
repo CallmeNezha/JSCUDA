@@ -1,7 +1,7 @@
 #include <node.h>
 #include "jc_api.h"
 #include "jc_parameter.h"
-#include "deviceFloat32Array.h"
+#include "DeviceFloat32Array.h"
 
 #include "matrix_func.h"
 #include "vector_func.h"
@@ -34,10 +34,20 @@ void cudaDeviceReset(const FunctionCallbackInfo<Value>& args) {
 
 
 void Init(Local<Object> exports) {
-    NODE_SET_METHOD(exports, "vectorAdd", vectorAdd);
-    NODE_SET_METHOD(exports, "vectorCopy", vectorCopy);
-    NODE_SET_METHOD(exports, "matrixMulMatrix", matrixMulMatrix);
-    NODE_SET_METHOD(exports, "cudaDeviceInit",  cudaDeviceInit);
+
+
+    NODE_SET_METHOD(exports, "vectorAdd"             , vectorAdd             );
+    NODE_SET_METHOD(exports, "vectorCopy"            , vectorCopy            );
+    NODE_SET_METHOD(exports, "vectorMulScalar"       , vectorMulScalar       );
+    NODE_SET_METHOD(exports, "vectorDot"             , vectorDot             );
+    NODE_SET_METHOD(exports, "vectorNorm"            , vectorNorm            );
+    NODE_SET_METHOD(exports, "vectorRank"            , vectorRank            );
+    NODE_SET_METHOD(exports, "matrixMulScalar"       , matrixMulScalar       );
+    NODE_SET_METHOD(exports, "matrixMulVector"       , matrixMulVector       );
+    NODE_SET_METHOD(exports, "matrixMulMatrix"       , matrixMulMatrix       );
+    NODE_SET_METHOD(exports, "matrixMulMatrixBatched", matrixMulMatrixBatched);
+
+    NODE_SET_METHOD(exports, "cudaDeviceInit" , cudaDeviceInit );
     NODE_SET_METHOD(exports, "cudaDeviceReset", cudaDeviceReset);
     DeviceFloat32Array::Init(exports);
 }

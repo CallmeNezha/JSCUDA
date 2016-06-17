@@ -17,8 +17,19 @@ typedef struct
     unsigned int numRow;
     unsigned int numCol;
     float*       elements;
+    bool         transposed;
     // In column major
 } Matrix;
+
+typedef struct
+{
+    unsigned int numRow;
+    unsigned int numCol;
+    float**      elementsArray;
+    bool         transposed;
+    unsigned int count;
+    // In column major
+} MatrixBatch;
 
 typedef struct  
 {
