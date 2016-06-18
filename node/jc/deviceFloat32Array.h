@@ -25,6 +25,8 @@ public:
 
 private:
     explicit DeviceFloat32Array(size_t length);
+    DeviceFloat32Array(const DeviceFloat32Array &) = delete;
+    DeviceFloat32Array& operator = (const DeviceFloat32Array &) = delete;
     explicit DeviceFloat32Array(const Local<Float32Array>& f32a);
     ~DeviceFloat32Array();
 

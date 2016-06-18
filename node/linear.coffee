@@ -26,6 +26,8 @@ class VectorD
     else
       @elements = new JC.DeviceFloat32Array( @length )
 
+    if !(@elements instanceof JC.DeviceFloat32Array) then throw new UE.UserException( "'elements''s type mismatch" )
+
 
   # Explicitly reclaim device memory , cudaFree under the hood
   destroy: ->
@@ -120,13 +122,15 @@ class MatrixD
     else
       @elements = new JC.DeviceFloat32Array( @numCol * @numRow )
 
+    if !(@elements instanceof JC.DeviceFloat32Array) then throw new UE.UserException( "'elements''s type mismatch" )
+
 
   # Explicitly reclaim device memory , cudaFree under the hood
   destroy: ->
     @elements.destroy()
+    @elements = undefined
     @numRow = 0
     @numCol = 0
-    @T = undefined
     undefined
 
   T: ->
@@ -181,15 +185,9 @@ class MatrixD
     JC.matrixMulVector( @, va, vb )
     vb
 
-  # Class Function
-  # TODO: Fix this after put transpose tag into MatrixD
-  multiplyMatrixBatched: ( matAd_array, matBd_array, matCd_array ) ->
-    if matAd_array.length isnt matBd_array.length isnt matCd_array.length then throw new UE.UserException( "'matAd_array, matBd_array, matCd_array''s dimension mismatch" )
-    JC.matrixMulMatrixBatched( matAd_array, false, matBd_array, false, matCd_array )
-    undefined
 
 class MatrixBatchD
-  constructor: ( m, n, matrices... ) ->
+  constructor: ( m, n, matrices ) ->
   # Read only properties
     @numRow = Math.ceil( m )
     @numCol = Math.ceil( n )
@@ -199,24 +197,40 @@ class MatrixBatchD
 
   # Private member
     @elementsArray = []
+    @batchPointerArray = undefined
   # !Private member
 
     # Filter parameter
     if @numRow < 1 or @numCol < 1 then throw new UE.UserException( "'m, n' \<uint32\> must greater than zero" )
-    if !( typeof matrices is 'Array' and matrices.length > 0 ) then throw new UE.UserException( "'matrices' \<MatrixD\> has at least one MatrixD" )
+    if !( matrices instanceof Array and matrices.length > 0 ) then throw new UE.UserException( "'matrices' \<MatrixD\> has at least one MatrixD" )
     for m in matrices
       if m.numRow isnt @numRow or m.numCol isnt @numCol then throw new UE.UserException( "'matrices''s dimension mismatch" )
       @elementsArray.push( m.elements )
     @count = @elementsArray.length
+    @batchPointerArray = new JC.BatchPointerArray(@elementsArray)
+    console.log( "length: #{ @batchPointerArray.length } type: #{ @batchPointerArray.type } typeSize(in bytes): #{ @batchPointerArray.typeSize }" )
+
+  # Explicitly reclaim device memory , cudaFree under the hood
+  destroy: ->
+    @batchPointerArray.destroy()
+    @batchPointerArray = undefined
+    @numRow = 0
+    @numCol = 0
+    @count = 0
+    @elementsArray = undefined
+    undefined
+
 
   multiplyMatrixBatch: ( mbb, mcb ) ->
     if !( mbb instanceof MatrixBatchD and mcb instanceof MatrixBatchD ) then throw new UE.UserException( "'mbb, mcb''s  must be MatrixBatchD" )
     if @count isnt mbb.count isnt mcb.count then throw new UE.UserException( "'mbb, mcb''s dimension mismatch" )
     if @numCol isnt mbb.numRow or @numRow isnt mcb.numRow or mbb.numCol isnt mcb.numCol then throw new UE.UserException( "'mbb, mcb''s dimension mismatch" )
-#    JC.
+    JC.matrixMulMatrixBatched( @, mbb, mcb )
+    mcb
 
 
 module.exports = JC
 exports = module.exports
 exports.VectorD = VectorD
 exports.MatrixD = MatrixD
+exports.MatrixBatchD = MatrixBatchD

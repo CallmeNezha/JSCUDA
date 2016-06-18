@@ -68,32 +68,14 @@ void matrixMulMatrixBatched(const FunctionCallbackInfo<Value>& args)
 
     CUBLAS_HANDLE_CHECK_RETURN;
 
-    auto matAbatch = Local<Object>::Cast(args[0]);
-    auto matBbatch = Local<Object>::Cast(args[1]);
-    auto matCbatch = Local<Object>::Cast(args[2]);
+    auto mbA = unwrapMatrixBatch(isolate, args[0]);
+    auto mbB = unwrapMatrixBatch(isolate, args[0]);
+    auto mbC = unwrapMatrixBatch(isolate, args[0]);
 
-    auto numRow = String::NewFromUtf8(isolate, "numRow");
-    auto numCol = String::NewFromUtf8(isolate, "numCol");
-    auto transposed = String::NewFromUtf8(isolate, "transposed");
-    auto count = String::NewFromUtf8(isolate, "count");
-    auto elementsArray = String::NewFromUtf8(isolate, "elementsArray");
-
-    auto matAea = Local<Array>::Cast(matAbatch->Get(elementsArray));
-
-    for (uint32 i = 0; i < matAea->Length(); i++)
-    {
-        DeviceFloat32Array* vecf32ad = node::ObjectWrap::Unwrap<DeviceFloat32Array>(matAea->Get(i)->ToObject());
-        vecf32ad->getData();
-    }
-    
-    jc_cuda::MatrixBatch mb{};
-
-    //checkJCErrors(jc_cuda::matrixMulMatrixBatched(jcg_cublasHandle
-    //    , matAd
-    //    , transA
-    //    , matBd
-    //    , transB
-    //    , matCd
-    //    ));
+    checkJCErrors(jc_cuda::matrixMulMatrixBatched(jcg_cublasHandle
+        , mbA
+        , mbB
+        , mbC
+        ));
 }
 #endif //!__MATRIX_H__

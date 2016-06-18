@@ -6,21 +6,21 @@
 Persistent<Function> DeviceFloat32Array::constructor;
 
 DeviceFloat32Array::DeviceFloat32Array(size_t length) 
-:m_length(length)
+: m_length(length)
 {
-    if (m_length != 0)
+    if (0 != m_length)
     {
 #if DEBUG_OUTPUT_ON
         printf("Allocating device memory, size: %d ...\n", m_length);
 #endif
-        jc_cuda::cudaMalloc_t((void**)&m_ptrd, m_length*sizeof(float32));
+        jc_cuda::cudaMalloc_t((void **)&m_ptrd, m_length * sizeof(float32));
     }
 }
 
 DeviceFloat32Array::DeviceFloat32Array(const Local<Float32Array>& f32a)
 :m_length(f32a->Length())
 {
-    if (m_length != 0)
+    if (0 != m_length)
     {
 #if DEBUG_OUTPUT_ON
         printf("Allocating device memory and initialized with native Float32Array, size%d ...\n", m_length);
@@ -37,7 +37,7 @@ DeviceFloat32Array::DeviceFloat32Array(const Local<Float32Array>& f32a)
 
 DeviceFloat32Array::~DeviceFloat32Array()
 {
-    if (m_length != 0)
+    if (0 != m_length && nullptr != m_ptrd)
     {
 #if DEBUG_OUTPUT_ON
         printf("Deallocating device memory...\n");
@@ -124,6 +124,7 @@ void DeviceFloat32Array::destroy(const FunctionCallbackInfo<Value>& args)
     Isolate* isolate = args.GetIsolate();
     DeviceFloat32Array* obj = ObjectWrap::Unwrap<DeviceFloat32Array>(args.Holder());
     jc_cuda::cudaFree_t(obj->m_ptrd);
+    obj->m_ptrd = nullptr;
     obj->m_length = 0;
     args.GetReturnValue().Set(Undefined(isolate));
 }

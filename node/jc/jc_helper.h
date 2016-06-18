@@ -1,7 +1,8 @@
 #ifndef __JC_HELPER_H__
 #define __JC_HELPER_H__
 #include <node.h>
-#include "deviceFloat32Array.h"
+#include "DeviceFloat32Array.h"
+#include "BatchPointerArray.h"
 
 using namespace v8;
 
@@ -61,5 +62,30 @@ jc_cuda::Matrix unwrapMatrix(Isolate* isolate, v8::Local<Value>& arg)
     return matd;
 }
 
+jc_cuda::MatrixBatch unwrapMatrixBatch(Isolate* isolate, v8::Local<Value>& arg)
+{
+    auto matBatch = Local<Object>::Cast(arg);
+    auto numRow = String::NewFromUtf8(isolate, "numRow");
+    auto numCol = String::NewFromUtf8(isolate, "numCol");
+    auto transposed = String::NewFromUtf8(isolate, "transposed");
+    auto count = String::NewFromUtf8(isolate, "count");
+    auto batchPointerArray = String::NewFromUtf8(isolate, "batchPointerArray");
+    BatchPointerArray* bpad = node::ObjectWrap::Unwrap<BatchPointerArray>(matBatch->Get(batchPointerArray)->ToObject());
+
+    uint32 numRow_r, numCol_r; // Restore original number of row, column
+    bool transposed_t = matBatch->Get(transposed)->BooleanValue();
+    if (transposed_t)
+        numRow_r = matBatch->Get(numCol)->Uint32Value(), numCol_r = matBatch->Get(numRow)->Uint32Value();
+    else
+        numRow_r = matBatch->Get(numRow)->Uint32Value(), numCol_r = matBatch->Get(numCol)->Uint32Value();
+
+    jc_cuda::MatrixBatch mbd{ numRow_r
+        , numCol_r
+        , (float**)bpad->getData()
+        , transposed_t
+        , matBatch->Get(count)->Uint32Value()
+        };
+    return mbd;
+}
 
 #endif //!__JC_HELPER_H__

@@ -33,7 +33,7 @@ void vectorAdd(const FunctionCallbackInfo<Value>& args)
     jc_cuda::Vector vAd = unwrapVector(isolate, args[0]);
     jc_cuda::Vector vBd = unwrapVector(isolate, args[1]);
 
-    if (vAd.length != vBd.length || vAd.elements == nullptr || vBd.elements == nullptr)
+    if (vAd.length != vBd.length || nullptr == vAd.elements || nullptr == vBd.elements)
     {
         isolate->ThrowException(Exception::ReferenceError(String::NewFromUtf8(isolate, jc::cublasError)));
         return;

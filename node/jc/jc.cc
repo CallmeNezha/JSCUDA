@@ -2,6 +2,7 @@
 #include "jc_api.h"
 #include "jc_parameter.h"
 #include "DeviceFloat32Array.h"
+#include "BatchPointerArray.h"
 
 #include "matrix_func.h"
 #include "vector_func.h"
@@ -50,6 +51,7 @@ void Init(Local<Object> exports) {
     NODE_SET_METHOD(exports, "cudaDeviceInit" , cudaDeviceInit );
     NODE_SET_METHOD(exports, "cudaDeviceReset", cudaDeviceReset);
     DeviceFloat32Array::Init(exports);
+    BatchPointerArray::Init(exports);
 }
 
 NODE_MODULE(jc, Init)
