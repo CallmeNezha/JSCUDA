@@ -273,24 +273,27 @@
       this.numCol = Math.ceil(n);
       this.transposed = false;
       this.count = 0;
+      this.MatrixDArray = [];
       this.elementsArray = [];
       this.batchPointerArray = void 0;
       if (this.numRow < 1 || this.numCol < 1) {
         throw new UE.UserException("'m, n' \<uint32\> must greater than zero");
       }
-      if (!(matrices instanceof Array && matrices.length > 0)) {
-        throw new UE.UserException("'matrices' \<MatrixD\> has at least one MatrixD");
-      }
-      for (i = 0, len = matrices.length; i < len; i++) {
-        m = matrices[i];
-        if (m.numRow !== this.numRow || m.numCol !== this.numCol) {
-          throw new UE.UserException("'matrices''s dimension mismatch");
+      if (matrices instanceof Array && matrices.length > 0) {
+        for (i = 0, len = matrices.length; i < len; i++) {
+          m = matrices[i];
+          if (!(m instanceof MatrixD)) {
+            throw new UE.UserException("'matrices' \<MatrixD\> array type mismatch");
+          }
+          if (m.numRow !== this.numRow || m.numCol !== this.numCol) {
+            throw new UE.UserException("'matrices''s dimension mismatch");
+          }
+          this.MatrixDArray.push(m);
+          this.elementsArray.push(m.elements);
         }
-        this.elementsArray.push(m.elements);
+        this.count = this.elementsArray.length;
+        this.batchPointerArray = new JC.BatchPointerArray(this.elementsArray);
       }
-      this.count = this.elementsArray.length;
-      this.batchPointerArray = new JC.BatchPointerArray(this.elementsArray);
-      console.log("length: " + this.batchPointerArray.length + " type: " + this.batchPointerArray.type + " typeSize(in bytes): " + this.batchPointerArray.typeSize);
     }
 
     MatrixBatchD.prototype.destroy = function() {
@@ -299,8 +302,20 @@
       this.numRow = 0;
       this.numCol = 0;
       this.count = 0;
+      this.MatrixDArray = void 0;
       this.elementsArray = void 0;
       return void 0;
+    };
+
+    MatrixBatchD.prototype.T = function() {
+      var t;
+      t = new MatrixBatchD(this.numCol, this.numRow);
+      t.transposed = true;
+      t.count = this.MatrixDArray.length;
+      t.MatrixDArray = this.MatrixDArray;
+      t.elementsArray = this.elementsArray;
+      t.batchPointerArray = this.batchPointerArray;
+      return t;
     };
 
     MatrixBatchD.prototype.multiplyMatrixBatch = function(mbb, mcb) {

@@ -196,19 +196,22 @@ class MatrixBatchD
   # !Read only properties
 
   # Private member
+    @MatrixDArray = []
     @elementsArray = []
     @batchPointerArray = undefined
   # !Private member
 
     # Filter parameter
     if @numRow < 1 or @numCol < 1 then throw new UE.UserException( "'m, n' \<uint32\> must greater than zero" )
-    if !( matrices instanceof Array and matrices.length > 0 ) then throw new UE.UserException( "'matrices' \<MatrixD\> has at least one MatrixD" )
-    for m in matrices
-      if m.numRow isnt @numRow or m.numCol isnt @numCol then throw new UE.UserException( "'matrices''s dimension mismatch" )
-      @elementsArray.push( m.elements )
-    @count = @elementsArray.length
-    @batchPointerArray = new JC.BatchPointerArray(@elementsArray)
-    console.log( "length: #{ @batchPointerArray.length } type: #{ @batchPointerArray.type } typeSize(in bytes): #{ @batchPointerArray.typeSize }" )
+    if matrices instanceof Array and matrices.length > 0
+      for m in matrices
+        if !( m instanceof MatrixD ) then throw new UE.UserException( "'matrices' \<MatrixD\> array type mismatch" )
+        if m.numRow isnt @numRow or m.numCol isnt @numCol then throw new UE.UserException( "'matrices''s dimension mismatch" )
+        @MatrixDArray.push( m )
+        @elementsArray.push( m.elements )
+      @count = @elementsArray.length
+      @batchPointerArray = new JC.BatchPointerArray( @elementsArray )
+
 
   # Explicitly reclaim device memory , cudaFree under the hood
   destroy: ->
@@ -217,8 +220,18 @@ class MatrixBatchD
     @numRow = 0
     @numCol = 0
     @count = 0
+    @MatrixDArray = undefined
     @elementsArray = undefined
     undefined
+
+  T: ->
+    t = new MatrixBatchD( @numCol, @numRow )
+    t.transposed = true
+    t.count = @MatrixDArray.length
+    t.MatrixDArray = @MatrixDArray
+    t.elementsArray = @elementsArray
+    t.batchPointerArray = @batchPointerArray
+    t
 
 
   multiplyMatrixBatch: ( mbb, mcb ) ->
@@ -227,6 +240,7 @@ class MatrixBatchD
     if @numCol isnt mbb.numRow or @numRow isnt mcb.numRow or mbb.numCol isnt mcb.numCol then throw new UE.UserException( "'mbb, mcb''s dimension mismatch" )
     JC.matrixMulMatrixBatched( @, mbb, mcb )
     mcb
+
 
 
 module.exports = JC

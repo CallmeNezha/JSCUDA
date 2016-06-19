@@ -243,6 +243,8 @@ extern "C"
             , matd.elements
             , matd.numRow
             ));
+
+        matd.transposed = false;
         return JC_SUCCESS;
     }
 
@@ -264,6 +266,7 @@ extern "C"
         }
         const float alpha = 1.f;
         const float beta = 0.f;
+        unsigned int lda = matAd.numRow;
 
         checkCudaErrors(cublasSgemv(handle
             , opt
@@ -271,13 +274,14 @@ extern "C"
             , matAd.numCol
             , &alpha
             , matAd.elements
-            , matAd.numRow
+            , lda
             , vAd.elements
             , 1
             , &beta
             , vBd.elements
             , 1
             ));
+
         return JC_SUCCESS;
     }
 
@@ -300,14 +304,15 @@ extern "C"
 
         
         cublasOperation_t optA, optB;
-        unsigned int lda, ldb, k;
+        unsigned int lda, ldb, ldc, k;
+        lda = matAd.numRow; ldb = matBd.numRow;
+        ldc = matCd.numRow;
 
         if (!matAd.transposed && !matBd.transposed)
         {
             if (matAd.numCol != matBd.numRow)         return JC_PARAM_ERROR;
             if (matAd.numRow != matCd.numRow || matBd.numCol != matCd.numCol) return JC_PARAM_ERROR;
             optA = CUBLAS_OP_N; optB = CUBLAS_OP_N;
-            lda = matAd.numRow; ldb = matBd.numRow;
             k = matAd.numCol;
         }
         else if (matAd.transposed && !matBd.transposed)
@@ -315,7 +320,6 @@ extern "C"
             if (matAd.numRow != matBd.numRow)         return JC_PARAM_ERROR;
             if (matAd.numCol != matCd.numRow || matBd.numCol != matCd.numCol) return JC_PARAM_ERROR;
             optA = CUBLAS_OP_T; optB = CUBLAS_OP_N;
-            lda = matAd.numRow; ldb = matBd.numRow;
             k = matAd.numRow;
         }
         else if (!matAd.transposed && matBd.transposed)
@@ -323,7 +327,6 @@ extern "C"
             if (matAd.numCol != matBd.numCol)         return JC_PARAM_ERROR;
             if (matAd.numRow != matCd.numRow || matBd.numRow != matCd.numCol) return JC_PARAM_ERROR;
             optA = CUBLAS_OP_N; optB = CUBLAS_OP_T;
-            lda = matAd.numRow; ldb = matBd.numRow;
             k = matAd.numCol;
         }
         else if (matAd.transposed && matBd.transposed)
@@ -331,7 +334,6 @@ extern "C"
             if (matAd.numRow != matBd.numCol)         return JC_PARAM_ERROR;
             if (matAd.numCol != matCd.numRow || matBd.numRow != matCd.numCol) return JC_PARAM_ERROR;
             optA = CUBLAS_OP_T; optB = CUBLAS_OP_T;
-            lda = matAd.numRow; ldb = matBd.numRow;
             k = matAd.numRow;
         }
 
@@ -351,9 +353,10 @@ extern "C"
             , ldb
             , &beta
             , matCd.elements
-            , matCd.numRow
+            , ldc
             ));
         
+        matCd.transposed = false;
         return JC_SUCCESS;
     }
 
@@ -367,14 +370,15 @@ extern "C"
 
 
         cublasOperation_t optA, optB;
-        unsigned int lda, ldb, k;
+        unsigned int lda, ldb, ldc, k;
+        lda = matAd.numRow; ldb = matBd.numRow;
+        ldc = matCd.numRow;
 
         if (!matAd.transposed && !matBd.transposed)
         {
             if (matAd.numCol != matBd.numRow)         return JC_PARAM_ERROR;
             if (matAd.numRow != matCd.numRow || matBd.numCol != matCd.numCol) return JC_PARAM_ERROR;
             optA = CUBLAS_OP_N; optB = CUBLAS_OP_N;
-            lda = matAd.numRow; ldb = matBd.numRow;
             k = matAd.numCol;
         }
         else if (matAd.transposed && !matBd.transposed)
@@ -382,7 +386,6 @@ extern "C"
             if (matAd.numRow != matBd.numRow)         return JC_PARAM_ERROR;
             if (matAd.numCol != matCd.numRow || matBd.numCol != matCd.numCol) return JC_PARAM_ERROR;
             optA = CUBLAS_OP_T; optB = CUBLAS_OP_N;
-            lda = matAd.numRow; ldb = matBd.numRow;
             k = matAd.numRow;
         }
         else if (!matAd.transposed && matBd.transposed)
@@ -390,7 +393,6 @@ extern "C"
             if (matAd.numCol != matBd.numCol)         return JC_PARAM_ERROR;
             if (matAd.numRow != matCd.numRow || matBd.numRow != matCd.numCol) return JC_PARAM_ERROR;
             optA = CUBLAS_OP_N; optB = CUBLAS_OP_T;
-            lda = matAd.numRow; ldb = matBd.numRow;
             k = matAd.numCol;
         }
         else if (matAd.transposed && matBd.transposed)
@@ -398,7 +400,6 @@ extern "C"
             if (matAd.numRow != matBd.numCol)         return JC_PARAM_ERROR;
             if (matAd.numCol != matCd.numRow || matBd.numRow != matCd.numCol) return JC_PARAM_ERROR;
             optA = CUBLAS_OP_T; optB = CUBLAS_OP_T;
-            lda = matAd.numRow; ldb = matBd.numRow;
             k = matAd.numRow;
         }
 
@@ -418,9 +419,11 @@ extern "C"
             , ldb
             , &beta
             , matCd.elementsArray
-            , matCd.numRow
+            , ldc
             , matAd.count
             ));
+
+        matCd.transposed = false;
         return JC_SUCCESS;
     }
 

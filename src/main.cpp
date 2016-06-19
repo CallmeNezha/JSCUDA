@@ -110,7 +110,7 @@ bool testBatchMatrixMultiply(int argc, char **argv)
     cudaMemcpyHostToDevice_t(c, vCdb, 0, 0, sizeof(float*));
 
     MatrixBatch mbA{ 3, 2, vAdb, true, 1 };
-    MatrixBatch mbB{ 2, 3, vBdb, true, 1 };
+    MatrixBatch mbB{ 3, 2, vBdb, false, 1 };
     MatrixBatch mbC{ 2, 2, vCdb, false, 1 };
 
     matrixMulMatrixBatched(handle, mbA, mbB, mbC);

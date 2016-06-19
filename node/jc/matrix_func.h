@@ -69,8 +69,8 @@ void matrixMulMatrixBatched(const FunctionCallbackInfo<Value>& args)
     CUBLAS_HANDLE_CHECK_RETURN;
 
     auto mbA = unwrapMatrixBatch(isolate, args[0]);
-    auto mbB = unwrapMatrixBatch(isolate, args[0]);
-    auto mbC = unwrapMatrixBatch(isolate, args[0]);
+    auto mbB = unwrapMatrixBatch(isolate, args[1]);
+    auto mbC = unwrapMatrixBatch(isolate, args[2]);
 
     checkJCErrors(jc_cuda::matrixMulMatrixBatched(jcg_cublasHandle
         , mbA

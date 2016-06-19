@@ -291,7 +291,7 @@
       console.log(("\tv8.CPU vs jc.GPU Mean absolute error: " + meanError + " , \<float32\> refer to IEEE-754")[colorLog]);
       return assert((AbsoluteError > meanError && meanError > -AbsoluteError), "test failed");
     });
-    return it("matrices' transposes' multiplication: ...", function() {
+    it("matrices' transposes' multiplication: ...", function() {
       var _, c, colorLog, cpuresult, element, end, gpuResult, i, j, k, l, len, len1, len2, m, matAd, matBd, matCd, meanError, mid, n, num, o, r, ref, ref1, ref2, ref3, start, testLength, tip, v1e, v1h, v2e, v2h, warmUpLength;
       testLength = 1e3;
       warmUpLength = 10;
@@ -360,6 +360,67 @@
       colorLog = "standardIEEE";
       console.log(("\tv8.CPU vs jc.GPU Mean absolute error: " + meanError + " , \<float32\> refer to IEEE-754")[colorLog]);
       return assert((AbsoluteError > meanError && meanError > -AbsoluteError), "test failed");
+    });
+    return it("matrices'batch multiplication: ...", function() {
+      var batchA, batchB, batchC, hostOut, i, matrixWatch, mbdA, mbdB, mbdC, num;
+      batchA = (function() {
+        var k, results;
+        results = [];
+        for (i = k = 0; k < 1; i = ++k) {
+          results.push(new JC.MatrixD(2, 2, new Float32Array((function() {
+            var l, results1;
+            results1 = [];
+            for (num = l = 0; l < 4; num = ++l) {
+              results1.push(num);
+            }
+            return results1;
+          })())));
+        }
+        return results;
+      })();
+      batchB = (function() {
+        var k, results;
+        results = [];
+        for (i = k = 0; k < 1; i = ++k) {
+          results.push(new JC.MatrixD(2, 2, new Float32Array((function() {
+            var l, results1;
+            results1 = [];
+            for (num = l = 0; l < 4; num = ++l) {
+              results1.push(num);
+            }
+            return results1;
+          })())));
+        }
+        return results;
+      })();
+      batchC = (function() {
+        var k, results;
+        results = [];
+        for (i = k = 0; k < 1; i = ++k) {
+          results.push(new JC.MatrixD(2, 2, new Float32Array((function() {
+            var l, results1;
+            results1 = [];
+            for (num = l = 0; l < 4; num = ++l) {
+              results1.push(num);
+            }
+            return results1;
+          })())));
+        }
+        return results;
+      })();
+      matrixWatch = batchC[0];
+      hostOut = new Float32Array(4);
+      matrixWatch.copyTo(4, hostOut);
+      console.log("Out-put before batch multiply: " + hostOut);
+      mbdA = new JC.MatrixBatchD(2, 2, batchA);
+      mbdB = new JC.MatrixBatchD(2, 2, batchB);
+      mbdC = new JC.MatrixBatchD(2, 2, batchC);
+      mbdA.T().multiplyMatrixBatch(mbdB, mbdC);
+      matrixWatch.copyTo(4, hostOut);
+      console.log("Out-put before batch multiply: " + hostOut);
+      mbdA.destroy();
+      mbdB.destroy();
+      return mbdC.destroy();
     });
   });
 

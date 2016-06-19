@@ -43,7 +43,7 @@ void BatchPointerArray::New(const FunctionCallbackInfo<Value>& args)
         if (args[0]->IsArray())
         {
             auto f32aa = Local<Array>::Cast(args[0]);
-            void* hostBuffer = malloc(f32aa->Length() * sizeof(float32*));
+            float32** hostBuffer = (float32**)malloc(f32aa->Length() * sizeof(float32*));
             for (uint32 i = 0; i < f32aa->Length(); ++i)
             {
                 DeviceFloat32Array* ptr = ObjectWrap::Unwrap<DeviceFloat32Array>(f32aa->Get(i)->ToObject());
@@ -53,13 +53,12 @@ void BatchPointerArray::New(const FunctionCallbackInfo<Value>& args)
                     isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, jc::typArgError)));
                     return;
                 }
-                ((float32**)hostBuffer)[i] = ptr->getData();
+                hostBuffer[i] = ptr->getData();
             }
-            void* deviceBuffer;
-            jc_cuda::cudaMalloc_t(&deviceBuffer, f32aa->Length() * sizeof(float32*));
+            float** deviceBuffer;
+            jc_cuda::cudaMalloc_t((void**)&deviceBuffer, f32aa->Length() * sizeof(float32*));
             jc_cuda::cudaMemcpyHostToDevice_t(hostBuffer, deviceBuffer, 0, 0, f32aa->Length() * sizeof(float32*));
             free(hostBuffer);
-
             BatchPointerArray* obj = new BatchPointerArray(f32aa->Length() * sizeof(float32*), Float32_Pointer, deviceBuffer);
             
             obj->Wrap(args.This());
