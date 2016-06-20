@@ -60,6 +60,7 @@ extern "C"
     JSCUDA_DLL_API bool      cudaDeviceInit(int argc, char **argv);
     JSCUDA_DLL_API void      cudaDeviceReset_t();
     JSCUDA_DLL_API void      cudaMalloc_t(void **devPtr, size_t size);
+    JSCUDA_DLL_API void      cudaMemset_t(void *device, int value, size_t size);
     JSCUDA_DLL_API void      cudaFree_t(void *devPtr);
     JSCUDA_DLL_API void      cudaSync();
     JSCUDA_DLL_API void      cudaMemcpyHostToDevice_t(const void *host, void *device, int offset_h, int offset_d, size_t size);
@@ -108,15 +109,11 @@ extern "C"
     JSCUDA_DLL_API ErrorType matrixMulVector(const cublasHandle_t handle, const Matrix& matAd, const Vector& vAd, Vector& vBd);
     JSCUDA_DLL_API ErrorType matrixMulMatrix(const cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
     JSCUDA_DLL_API ErrorType matrixMulMatrixBatched(const cublasHandle_t handle, const MatrixBatch& matAd, const MatrixBatch& matBd, MatrixBatch& matCd);
-    /*JSCUDA_DLL_API ErrorType matrixEigen(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
-    JSCUDA_DLL_API ErrorType matrixUTri(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
-    JSCUDA_DLL_API ErrorType matrixDTri(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
-    JSCUDA_DLL_API ErrorType matrixLUD(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
-    JSCUDA_DLL_API ErrorType matrixSVD(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
-    JSCUDA_DLL_API ErrorType matrixQRD(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
-    JSCUDA_DLL_API ErrorType matrixCholeskyD(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
-    JSCUDA_DLL_API ErrorType matrixCGrad(cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);*/
+    JSCUDA_DLL_API ErrorType matrixAdd(const cublasHandle_t handle, const Matrix& matAd, const Matrix& matBd, Matrix& matCd);
 
+    // Solver related
+    JSCUDA_DLL_API ErrorType matrixGetrfBatched(const cublasHandle_t handle, MatrixBatch& matd, int* pivotArrayd, int* infoArrayd);
+    JSCUDA_DLL_API ErrorType matrixGetrsBatched(const cublasHandle_t handle, const MatrixBatch& matAd, MatrixBatch& matBd, int* pivotArrayd, int* infoArrayh);
 
 }
 }

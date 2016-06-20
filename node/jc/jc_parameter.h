@@ -11,6 +11,7 @@
 typedef float           float32;
 typedef double          float64;
 typedef unsigned int    uint32;
+typedef int             int32;
 
 
 // Global extern

@@ -43,10 +43,12 @@ void Init(Local<Object> exports) {
     NODE_SET_METHOD(exports, "vectorDot"             , vectorDot             );
     NODE_SET_METHOD(exports, "vectorNorm"            , vectorNorm            );
     NODE_SET_METHOD(exports, "vectorRank"            , vectorRank            );
+    NODE_SET_METHOD(exports, "matrixAdd"             , matrixAdd             );
     NODE_SET_METHOD(exports, "matrixMulScalar"       , matrixMulScalar       );
     NODE_SET_METHOD(exports, "matrixMulVector"       , matrixMulVector       );
     NODE_SET_METHOD(exports, "matrixMulMatrix"       , matrixMulMatrix       );
     NODE_SET_METHOD(exports, "matrixMulMatrixBatched", matrixMulMatrixBatched);
+    NODE_SET_METHOD(exports, "linearSolveLUBatched"  , linearSolveLUBatched  );
 
     NODE_SET_METHOD(exports, "cudaDeviceInit" , cudaDeviceInit );
     NODE_SET_METHOD(exports, "cudaDeviceReset", cudaDeviceReset);

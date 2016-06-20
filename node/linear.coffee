@@ -14,7 +14,7 @@ class VectorD
 
 
     # Filter parameter
-    if @length < 1 then throw new UE.UserException( "'n' \<uint32\> must greater than zero" )
+    if @length < 1 then throw new UE.UserException( "'n' <uint32> must greater than zero" )
 
     if elements?
       if elements.length isnt @length then throw new UE.UserException( "'elements''s dimension mismatch" )
@@ -45,7 +45,7 @@ class VectorD
 
   copyFrom: ( n, array ) ->
     n = Math.ceil( n )
-    if n < 1 then throw new UE.UserException( "'n' \<uint32\> must  greater than zero" )
+    if n < 1 then throw new UE.UserException( "'n' <uint32> must  greater than zero" )
     if !( array instanceof Float32Array ) then throw new UE.UserException( "'array' must be Float32Array" )
     if n > array.length or n > @elements.length then throw new UE.UserException( "'n' exceed range of array" )
     # DeviceFloat32Array::copyFrom( host, offset_h, offset_d, size )
@@ -54,7 +54,7 @@ class VectorD
 
   copyTo: ( n, array ) ->
     n = Math.ceil( n )
-    if n < 1 then throw new UE.UserException( "'n' \<uint32\> must  greater than zero" )
+    if n < 1 then throw new UE.UserException( "'n' <uint32> must  greater than zero" )
     if !( array instanceof Float32Array ) then throw new UE.UserException( "'array' must be Float32Array" )
     if n > array.length or n > @elements.length then throw new UE.UserException( "'n' exceed range of array" )
     # DeviceFloat32Array::copyTo( host, offset_h, offset_d, size )
@@ -110,7 +110,7 @@ class MatrixD
   # !Private member
 
     # Filter parameter
-    if @numRow < 1 or @numCol < 1 then throw new UE.UserException( "'m, n' \<uint32\> must greater than zero" )
+    if @numRow < 1 or @numCol < 1 then throw new UE.UserException( "'m, n' <uint32> must greater than zero" )
 
     if elements?
       if elements.length isnt @numCol * @numRow then throw new UE.UserException( "'elements''s dimension mismatch" )
@@ -141,7 +141,6 @@ class MatrixD
   copy: ( m ) ->
     if !( m instanceof MatrixD and m.elements? ) then throw new UE.UserException( "'m' must be MatrixD" )
     if @elements.length isnt m.elements.length or @numRow isnt m.numRow or @numCol isnt m.numCol then throw new UE.UserException( "'m''s dimension mismatch" )
-    else
 
     @elements.copy( m.elements, 0, 0, @elements.length )
     @transposed = m.transposed
@@ -150,7 +149,7 @@ class MatrixD
   # TODO: Array's elements must be aligned with respect to matrix transposed state. For example: row major storage when matrix is transposed
   copyFrom: ( n, array ) ->
     n = Math.ceil( n )
-    if n < 1 then throw new UE.UserException( "'n' \<uint32\> must  greater than zero" )
+    if n < 1 then throw new UE.UserException( "'n' <uint32> must  greater than zero" )
     if !( array instanceof Float32Array ) then throw new UE.UserException( "'array' must be Float32Array" )
     if n > array.length or n > @elements.length then throw new UE.UserException( "'n' exceed range of array" )
     # DeviceFloat32Array::copyFrom( host, offset_h, offset_d, size )
@@ -160,7 +159,7 @@ class MatrixD
   # TODO: Array must be realigned after copyTo with respect to matrix transposed state. For example: row major to column major storage when matrix is transposed
   copyTo: ( n, array ) ->
     n = Math.ceil( n )
-    if n < 1 then throw new UE.UserException( "'n' \<uint32\> must  greater than zero" )
+    if n < 1 then throw new UE.UserException( "'n' <uint32> must  greater than zero" )
     if !( array instanceof Float32Array ) then throw new UE.UserException( "'array' must be Float32Array" )
     if n > array.length or n > @elements.length then throw new UE.UserException( "'n' exceed range of array" )
     # DeviceFloat32Array::copyTo( host, offset_h, offset_d, size )
@@ -186,6 +185,18 @@ class MatrixD
     vb
 
 
+
+  add: ( mb, mc ) ->
+    if !( mb instanceof MatrixD and mb.elements? ) then throw new UE.UserException( "'mb' must be MatrixD" )
+    if !( mc instanceof MatrixD and mc.elements? ) then throw new UE.UserException( "'mc' must be MatrixD" )
+    if @numCol isnt mb.numRow or @numRow isnt mc.numRow or mb.numCol isnt mc.numCol then throw new UE.UserException( "'mb, mc''s dimension mismatch" )
+    JC.matrixAdd( @, mb, mc )
+    mc
+
+  setZero: ->
+    @elements.setValue(0)
+
+
 class MatrixBatchD
   constructor: ( m, n, matrices ) ->
   # Read only properties
@@ -193,19 +204,21 @@ class MatrixBatchD
     @numCol = Math.ceil( n )
     @transposed = false
     @count = 0
-  # !Read only properties
+    @MatrixDArray = []
+    # !Read only properties
 
   # Private member
-    @MatrixDArray = []
     @elementsArray = []
     @batchPointerArray = undefined
   # !Private member
 
     # Filter parameter
-    if @numRow < 1 or @numCol < 1 then throw new UE.UserException( "'m, n' \<uint32\> must greater than zero" )
+    if @numRow < 1 or @numCol < 1 then throw new UE.UserException( "'m, n' <uint32> must greater than zero" )
     if matrices instanceof Array and matrices.length > 0
       for m in matrices
-        if !( m instanceof MatrixD ) then throw new UE.UserException( "'matrices' \<MatrixD\> array type mismatch" )
+        if !( m instanceof MatrixD ) then throw new UE.UserException( "'matrices' <MatrixD> array type mismatch" )
+        # TODO: Support transposed matrix
+        if m.transposed is true then throw new UE.UserException( "'matrices' <MatrixD> construct <MatrixBatchD> shouldn't be transposed" )
         if m.numRow isnt @numRow or m.numCol isnt @numCol then throw new UE.UserException( "'matrices''s dimension mismatch" )
         @MatrixDArray.push( m )
         @elementsArray.push( m.elements )
@@ -224,6 +237,10 @@ class MatrixBatchD
     @elementsArray = undefined
     undefined
 
+  setZero: ->
+    for m in @MatrixDArray
+      m.setZero()
+
   T: ->
     t = new MatrixBatchD( @numCol, @numRow )
     t.transposed = true
@@ -240,6 +257,7 @@ class MatrixBatchD
     if @numCol isnt mbb.numRow or @numRow isnt mcb.numRow or mbb.numCol isnt mcb.numCol then throw new UE.UserException( "'mbb, mcb''s dimension mismatch" )
     JC.matrixMulMatrixBatched( @, mbb, mcb )
     mcb
+
 
 
 

@@ -59,11 +59,12 @@ void DeviceFloat32Array::Init(Local<Object> exports)
     // Set Prototype functions in C++
     //NODE_SET_PROTOTYPE_METHOD(tpl, "length"  , length  );
     
-    NODE_SET_PROTOTYPE_METHOD(tpl, "swap", swap);
-    NODE_SET_PROTOTYPE_METHOD(tpl, "copy", copy);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "swap",     swap);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "copy",     copy);
     NODE_SET_PROTOTYPE_METHOD(tpl, "copyFrom", copyFrom);
     NODE_SET_PROTOTYPE_METHOD(tpl, "copyTo"  , copyTo  );
     NODE_SET_PROTOTYPE_METHOD(tpl, "destroy",  destroy);
+    NODE_SET_PROTOTYPE_METHOD(tpl, "setValue", setValue);
 
     constructor.Reset(isolate, tpl->GetFunction());
 
@@ -268,6 +269,22 @@ void DeviceFloat32Array::swap(const FunctionCallbackInfo<Value>& args)
 
         args.GetReturnValue().Set(args.This());
         return;
+    }
+    else
+    {
+        isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, jc::typArgError)));
+        return;
+    }
+}
+
+void DeviceFloat32Array::setValue(const FunctionCallbackInfo<Value>& args)
+{
+    Isolate* isolate = args.GetIsolate();
+    DeviceFloat32Array* f32ad = ObjectWrap::Unwrap<DeviceFloat32Array>(args.Holder());
+    if (args[0]->IsInt32())
+    {
+        int32 value = args[0]->Int32Value();
+        jc_cuda::cudaMemset_t(f32ad->getData(), value, f32ad->getLength() * sizeof(float32));
     }
     else
     {

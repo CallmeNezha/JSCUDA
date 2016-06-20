@@ -40,6 +40,7 @@ private:
     static void copyTo  (const FunctionCallbackInfo<Value>& args);
     static void destroy (const FunctionCallbackInfo<Value>& args);
     static void swap    (const FunctionCallbackInfo<Value>& args);
+    static void setValue(const FunctionCallbackInfo<Value>& args);
 };
 
 

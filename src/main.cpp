@@ -5,6 +5,7 @@
 #include <windows.h>
 using namespace jc_cuda;
 
+
 #define dumpMatrix_m(mat)         printf("Dumping matrix %s: \n",#mat);dumpMatrix(mat);
 
 void dumpMatrix(Matrix&);
@@ -41,10 +42,9 @@ double GetCounter()
 }
 
 
-bool testBatchMatrixMultiply(int argc, char **argv);
 int main(int argc, char **argv)
 {
-    testBatchMatrixMultiply(argc, argv);
+   
     getchar();
     return 0;
 }

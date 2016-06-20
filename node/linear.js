@@ -14,7 +14,7 @@
       this.length = Math.ceil(n);
       this.elements = void 0;
       if (this.length < 1) {
-        throw new UE.UserException("'n' \<uint32\> must greater than zero");
+        throw new UE.UserException("'n' <uint32> must greater than zero");
       }
       if (elements != null) {
         if (elements.length !== this.length) {
@@ -54,7 +54,7 @@
     VectorD.prototype.copyFrom = function(n, array) {
       n = Math.ceil(n);
       if (n < 1) {
-        throw new UE.UserException("'n' \<uint32\> must  greater than zero");
+        throw new UE.UserException("'n' <uint32> must  greater than zero");
       }
       if (!(array instanceof Float32Array)) {
         throw new UE.UserException("'array' must be Float32Array");
@@ -69,7 +69,7 @@
     VectorD.prototype.copyTo = function(n, array) {
       n = Math.ceil(n);
       if (n < 1) {
-        throw new UE.UserException("'n' \<uint32\> must  greater than zero");
+        throw new UE.UserException("'n' <uint32> must  greater than zero");
       }
       if (!(array instanceof Float32Array)) {
         throw new UE.UserException("'array' must be Float32Array");
@@ -151,7 +151,7 @@
       this.transposed = false;
       this.elements = void 0;
       if (this.numRow < 1 || this.numCol < 1) {
-        throw new UE.UserException("'m, n' \<uint32\> must greater than zero");
+        throw new UE.UserException("'m, n' <uint32> must greater than zero");
       }
       if (elements != null) {
         if (elements.length !== this.numCol * this.numRow) {
@@ -192,8 +192,6 @@
       }
       if (this.elements.length !== m.elements.length || this.numRow !== m.numRow || this.numCol !== m.numCol) {
         throw new UE.UserException("'m''s dimension mismatch");
-      } else {
-
       }
       this.elements.copy(m.elements, 0, 0, this.elements.length);
       this.transposed = m.transposed;
@@ -203,7 +201,7 @@
     MatrixD.prototype.copyFrom = function(n, array) {
       n = Math.ceil(n);
       if (n < 1) {
-        throw new UE.UserException("'n' \<uint32\> must  greater than zero");
+        throw new UE.UserException("'n' <uint32> must  greater than zero");
       }
       if (!(array instanceof Float32Array)) {
         throw new UE.UserException("'array' must be Float32Array");
@@ -218,7 +216,7 @@
     MatrixD.prototype.copyTo = function(n, array) {
       n = Math.ceil(n);
       if (n < 1) {
-        throw new UE.UserException("'n' \<uint32\> must  greater than zero");
+        throw new UE.UserException("'n' <uint32> must  greater than zero");
       }
       if (!(array instanceof Float32Array)) {
         throw new UE.UserException("'array' must be Float32Array");
@@ -262,6 +260,24 @@
       return vb;
     };
 
+    MatrixD.prototype.add = function(mb, mc) {
+      if (!(mb instanceof MatrixD && (mb.elements != null))) {
+        throw new UE.UserException("'mb' must be MatrixD");
+      }
+      if (!(mc instanceof MatrixD && (mc.elements != null))) {
+        throw new UE.UserException("'mc' must be MatrixD");
+      }
+      if (this.numCol !== mb.numRow || this.numRow !== mc.numRow || mb.numCol !== mc.numCol) {
+        throw new UE.UserException("'mb, mc''s dimension mismatch");
+      }
+      JC.matrixAdd(this, mb, mc);
+      return mc;
+    };
+
+    MatrixD.prototype.setZero = function() {
+      return this.elements.setValue(0);
+    };
+
     return MatrixD;
 
   })();
@@ -277,13 +293,16 @@
       this.elementsArray = [];
       this.batchPointerArray = void 0;
       if (this.numRow < 1 || this.numCol < 1) {
-        throw new UE.UserException("'m, n' \<uint32\> must greater than zero");
+        throw new UE.UserException("'m, n' <uint32> must greater than zero");
       }
       if (matrices instanceof Array && matrices.length > 0) {
         for (i = 0, len = matrices.length; i < len; i++) {
           m = matrices[i];
           if (!(m instanceof MatrixD)) {
-            throw new UE.UserException("'matrices' \<MatrixD\> array type mismatch");
+            throw new UE.UserException("'matrices' <MatrixD> array type mismatch");
+          }
+          if (m.transposed === true) {
+            throw new UE.UserException("'matrices' <MatrixD> construct <MatrixBatchD> shouldn't be transposed");
           }
           if (m.numRow !== this.numRow || m.numCol !== this.numCol) {
             throw new UE.UserException("'matrices''s dimension mismatch");
@@ -305,6 +324,17 @@
       this.MatrixDArray = void 0;
       this.elementsArray = void 0;
       return void 0;
+    };
+
+    MatrixBatchD.prototype.setZero = function() {
+      var i, len, m, ref, results;
+      ref = this.MatrixDArray;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        m = ref[i];
+        results.push(m.setZero());
+      }
+      return results;
     };
 
     MatrixBatchD.prototype.T = function() {

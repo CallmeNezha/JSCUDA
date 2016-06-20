@@ -47,6 +47,11 @@ extern "C"
         checkCudaErrors(cudaMalloc(devPtr, size));
     }
     JSCUDA_DLL_API
+    void cudaMemset_t(void *device, int value, size_t size)
+    {
+        checkCudaErrors(cudaMemset(device, value, size));
+    }
+    JSCUDA_DLL_API
     void cudaFree_t(void *devPtr)
     {
         checkCudaErrors(cudaFree(devPtr));
