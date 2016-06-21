@@ -98,7 +98,7 @@ And now you can run test:
 E:\expamles>mocha ${testname}.js
 ```
 Output is something like this:
-![https://github.com/CallmeNezha/JSCUDA/blob/master/results/test.JPG]
+![test result][https://github.com/CallmeNezha/JSCUDA/blob/master/results/test.JPG]
 
 ##API Reference & Guide
 [https://github.com/CallmeNezha/JSCUDA/wiki/]
