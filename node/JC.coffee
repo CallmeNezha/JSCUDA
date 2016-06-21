@@ -100,10 +100,13 @@ class VectorD
   tensor: ( v, m ) ->
     if !( v instanceof VectorD and v.elements? ) then throw new UE.UserException( "'v' must be VectorD" )
     if !( m instanceof MatrixD and m.elements? ) then throw new UE.UserException( "'m' must be MatrixD" )
-    if v.elements.length isnt @elements.length then throw new UE.UserException( "'v''s dimension' mismatch" )
     if m.numRow isnt @length or m.numCol isnt v.length then throw new UE.UserException( "'m''s dimension mismatch" )
     JC.vectorRank( @, v, m )
     m
+
+  setZero: ->
+    @elements.setValue(0)
+    @
 
 
 
@@ -207,6 +210,7 @@ class MatrixD
 
   setZero: ->
     @elements.setValue(0)
+    @
 
 
 class MatrixBatchD
@@ -252,6 +256,7 @@ class MatrixBatchD
   setZero: ->
     for m in @MatrixDArray
       m.setZero()
+    @
 
   T: ->
     t = new MatrixBatchD( @numCol, @numRow )

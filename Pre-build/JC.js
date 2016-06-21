@@ -2,7 +2,7 @@
 (function() {
   var JC, MatrixBatchD, MatrixD, UE, UserException, VectorD, exports;
 
-  JC = require("./jc.node");
+  JC = require("./jc/build/Debug/jc.node");
 
   UserException = (function() {
     function UserException(msg) {
@@ -150,6 +150,11 @@
       return m;
     };
 
+    VectorD.prototype.setZero = function() {
+      this.elements.setValue(0);
+      return this;
+    };
+
     return VectorD;
 
   })();
@@ -288,7 +293,8 @@
     };
 
     MatrixD.prototype.setZero = function() {
-      return this.elements.setValue(0);
+      this.elements.setValue(0);
+      return this;
     };
 
     return MatrixD;
@@ -340,14 +346,13 @@
     };
 
     MatrixBatchD.prototype.setZero = function() {
-      var i, len, m, ref, results;
+      var i, len, m, ref;
       ref = this.MatrixDArray;
-      results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         m = ref[i];
-        results.push(m.setZero());
+        m.setZero();
       }
-      return results;
+      return this;
     };
 
     MatrixBatchD.prototype.T = function() {

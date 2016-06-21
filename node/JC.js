@@ -143,14 +143,16 @@
       if (!(m instanceof MatrixD && (m.elements != null))) {
         throw new UE.UserException("'m' must be MatrixD");
       }
-      if (v.elements.length !== this.elements.length) {
-        throw new UE.UserException("'v''s dimension' mismatch");
-      }
       if (m.numRow !== this.length || m.numCol !== v.length) {
         throw new UE.UserException("'m''s dimension mismatch");
       }
       JC.vectorRank(this, v, m);
       return m;
+    };
+
+    VectorD.prototype.setZero = function() {
+      this.elements.setValue(0);
+      return this;
     };
 
     return VectorD;
@@ -291,7 +293,8 @@
     };
 
     MatrixD.prototype.setZero = function() {
-      return this.elements.setValue(0);
+      this.elements.setValue(0);
+      return this;
     };
 
     return MatrixD;
@@ -343,14 +346,13 @@
     };
 
     MatrixBatchD.prototype.setZero = function() {
-      var i, len, m, ref, results;
+      var i, len, m, ref;
       ref = this.MatrixDArray;
-      results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         m = ref[i];
-        results.push(m.setZero());
+        m.setZero();
       }
-      return results;
+      return this;
     };
 
     MatrixBatchD.prototype.T = function() {

@@ -1,4 +1,5 @@
-JC = require("./jc.node")
+JC = require("./jc/build/Debug/jc.node")
+
 
 class UserException
   constructor: (msg) ->
@@ -12,15 +13,16 @@ UE = {
   UserException: UserException
 }
 
+
 class VectorD
   constructor: ( n, elements = undefined ) ->
-  # Read only properties
+# Read only properties
     @length   = Math.ceil( n )
-  # !Read only properties
+    # !Read only properties
 
-  # Private member
+    # Private member
     @elements = undefined
-  # !Private member
+    # !Private member
 
 
     # Filter parameter
@@ -39,7 +41,7 @@ class VectorD
     if !(@elements instanceof JC.DeviceFloat32Array) then throw new UE.UserException( "'elements''s type mismatch" )
 
 
-  # Explicitly reclaim device memory , cudaFree under the hood
+# Explicitly reclaim device memory , cudaFree under the hood
   destroy: ->
     @elements.destroy()
     @length = 0
@@ -102,21 +104,25 @@ class VectorD
     JC.vectorRank( @, v, m )
     m
 
+  setZero: ->
+    @elements.setValue(0)
+    @
+
 
 
 
 class MatrixD
   constructor:( m, n, elements = undefined ) ->
 
-  # Read only properties
+# Read only properties
     @numRow = Math.ceil( m )
     @numCol = Math.ceil( n )
     @transposed = false
-  # !Read only properties
+    # !Read only properties
 
-  # Private member
+    # Private member
     @elements = undefined
-  # !Private member
+    # !Private member
 
     # Filter parameter
     if @numRow < 1 or @numCol < 1 then throw new UE.UserException( "'m, n' <uint32> must greater than zero" )
@@ -134,7 +140,7 @@ class MatrixD
     if !(@elements instanceof JC.DeviceFloat32Array) then throw new UE.UserException( "'elements''s type mismatch" )
 
 
-  # Explicitly reclaim device memory , cudaFree under the hood
+# Explicitly reclaim device memory , cudaFree under the hood
   destroy: ->
     @elements.destroy()
     @elements = undefined
@@ -155,7 +161,7 @@ class MatrixD
     @transposed = m.transposed
     @
 
-  # TODO: Array's elements must be aligned with respect to matrix transposed state. For example: row major storage when matrix is transposed
+# TODO: Array's elements must be aligned with respect to matrix transposed state. For example: row major storage when matrix is transposed
   copyFrom: ( n, array ) ->
     n = Math.ceil( n )
     if n < 1 then throw new UE.UserException( "'n' <uint32> must  greater than zero" )
@@ -165,7 +171,7 @@ class MatrixD
     @elements.copyFrom( array, 0, 0, n )
     @
 
-  # TODO: Array must be realigned after copyTo with respect to matrix transposed state. For example: row major to column major storage when matrix is transposed
+# TODO: Array must be realigned after copyTo with respect to matrix transposed state. For example: row major to column major storage when matrix is transposed
   copyTo: ( n, array ) ->
     n = Math.ceil( n )
     if n < 1 then throw new UE.UserException( "'n' <uint32> must  greater than zero" )
@@ -204,11 +210,12 @@ class MatrixD
 
   setZero: ->
     @elements.setValue(0)
+    @
 
 
 class MatrixBatchD
   constructor: ( m, n, matrices ) ->
-  # Read only properties
+# Read only properties
     @numRow = Math.ceil( m )
     @numCol = Math.ceil( n )
     @transposed = false
@@ -216,10 +223,10 @@ class MatrixBatchD
     @MatrixDArray = []
     # !Read only properties
 
-  # Private member
+    # Private member
     @elementsArray = []
     @batchPointerArray = undefined
-  # !Private member
+    # !Private member
 
     # Filter parameter
     if @numRow < 1 or @numCol < 1 then throw new UE.UserException( "'m, n' <uint32> must greater than zero" )
@@ -235,7 +242,7 @@ class MatrixBatchD
       @batchPointerArray = new JC.BatchPointerArray( @elementsArray )
 
 
-  # Explicitly reclaim device memory , cudaFree under the hood
+# Explicitly reclaim device memory , cudaFree under the hood
   destroy: ->
     @batchPointerArray.destroy()
     @batchPointerArray = undefined
@@ -249,6 +256,7 @@ class MatrixBatchD
   setZero: ->
     for m in @MatrixDArray
       m.setZero()
+    @
 
   T: ->
     t = new MatrixBatchD( @numCol, @numRow )
