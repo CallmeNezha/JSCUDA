@@ -58,3 +58,6 @@ console.log( #{ vAh } ) # output the result
 JC.cudaDeviceReset()    # Before program exits
 
 ```
+
+##API Reference & Guide
+[https://github.com/CallmeNezha/JSCUDA/wiki/]
