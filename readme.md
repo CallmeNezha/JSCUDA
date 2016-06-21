@@ -7,23 +7,23 @@ It means you can easily use Javascript to bring your GPU down computing linear p
 **And most important one is**: User can quickly deploy JC with very little effort instead of learning enormous and complicate API provided by CUDA Toolkit which is writen in C++.
 
 ##What JC can do?
- *. Level-1
+ * Level-1
    1. arbitrary dimension vector add
    2. arbitrary dimension vector dot product
    3. arbitrary dimension vector Euclidean Norm
    4. arbitrary dimension vector multiply scalar
    
- *. Level-2
+ * Level-2
    1. arbitrary dimension vector tensor product
    2. arbitrary dimension matrix add
    3. arbitrary dimension matrix multiply scalar
    4. arbitrary dimension matrix multiply vector
   
- *. Level-3
+ * Level-3
    1. arbitrary dimension matrix multiply matrix
    2. arbitrary dimension matrix multiply matrix ( Batched )
  
- *. Solvers
+ * Solvers
    1. quick dense n x n matrix inverse, n is less than 32 ( Batched )
    2. dense n x n matrix LU decomposition & solve linear system & matrix inverse ( Batched )
    3. dense n x n matrix QR decomposition & solve linear system & matrix inverse ( Batched ) *Coming soon*
@@ -98,7 +98,7 @@ And now you can run test:
 E:\expamles>mocha ${testname}.js
 ```
 Output is something like this:
-
+![https://github.com/CallmeNezha/JSCUDA/blob/master/results/test.JPG]
 
 ##API Reference & Guide
 [https://github.com/CallmeNezha/JSCUDA/wiki/]
