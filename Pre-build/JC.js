@@ -143,9 +143,6 @@
       if (!(m instanceof MatrixD && (m.elements != null))) {
         throw new UE.UserException("'m' must be MatrixD");
       }
-      if (v.elements.length !== this.elements.length) {
-        throw new UE.UserException("'v''s dimension' mismatch");
-      }
       if (m.numRow !== this.length || m.numCol !== v.length) {
         throw new UE.UserException("'m''s dimension mismatch");
       }
