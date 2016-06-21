@@ -9,7 +9,7 @@
 *.deps
 *.ilk
 *.opensdf
-JSCUDA/JSCUDA.sdf
+*.sdf
 node/.idea/
 Pre-build/.idea/
 *.exp
