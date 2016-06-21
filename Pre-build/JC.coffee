@@ -1,4 +1,4 @@
-JC = require("./jc/build/Debug/jc.node")
+JC = require("./jc.node")
 
 
 class UserException

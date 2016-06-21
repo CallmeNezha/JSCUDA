@@ -2,7 +2,7 @@
 (function() {
   var JC, batchA, batchB, date, hostOut, infoArrayh, matA, matB;
 
-  JC = require("../linear");
+  JC = require("../JC.js");
 
   date = new Date();
 

@@ -1,4 +1,4 @@
-JC = require("../linear")
+JC = require( "../JC.js" )
 
 date = new Date()
 JC.cudaDeviceInit()

@@ -1,6 +1,6 @@
 assert = require( "assert" )
 colors = require( "colors" )
-JC = require( "../linear" )
+JC = require( "../JC.js" )
 
 
 colors.setTheme({

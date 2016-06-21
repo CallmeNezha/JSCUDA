@@ -9,7 +9,7 @@
     "colors": "^1.1.2"
   },
   "scripts": {
-    "test": "mocha linear_test.js"
+    "test": "mocha VectorD_func_test.js"
   },
   "gypfile": true
 }

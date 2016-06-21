@@ -2,7 +2,7 @@
 (function() {
   var JC, MatrixBatchD, MatrixD, UE, UserException, VectorD, exports;
 
-  JC = require("./jc/build/Debug/jc.node");
+  JC = require("./jc.node");
 
   UserException = (function() {
     function UserException(msg) {
