@@ -361,7 +361,7 @@ describe("MatrixD Functions Validation Test"
     mbdA.T().multiplyMatrixBatch( mbdB, mbdC )
 
     matrixWatch.copyTo( 4, hostOut )
-    console.log( "Out-put before batch multiply: #{ hostOut }" )
+    console.log( "Out-put batch multiply result: #{ hostOut }" )
 
     mbdA.destroy()
     mbdB.destroy()

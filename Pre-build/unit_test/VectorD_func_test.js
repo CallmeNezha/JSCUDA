@@ -135,7 +135,7 @@
         vBd = new JC.VectorD(len);
         vBd.copyFrom(len, v2h);
         start = Date.now();
-        vAd.add(vBd);
+        vAd.copy(vBd);
         if (len === warmUpLength) {
           tip = "Warm up pass ";
           colorLog = "warmup";
@@ -154,7 +154,7 @@
       start = Date.now();
       for (i = l = 0, len2 = v2h.length; l < len2; i = ++l) {
         e = v2h[i];
-        v1h[i] += e;
+        v1h[i] = e;
       }
       colorLog = "cpu";
       console.log(("\t" + tip + "V8(CPU) <<< vector copy >>> " + testLength + " elements used:" + (Date.now() - start) + " ms")[colorLog]);

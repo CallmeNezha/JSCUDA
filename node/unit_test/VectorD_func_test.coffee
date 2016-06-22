@@ -118,7 +118,7 @@ describe("VectorD Functions Validation Test"
 
       # Measure time
       start = Date.now()
-      vAd.add( vBd )
+      vAd.copy( vBd )
       if len is warmUpLength
         tip = "Warm up pass "
         colorLog = "warmup"
@@ -138,7 +138,7 @@ describe("VectorD Functions Validation Test"
     # CPU pass
     start = Date.now()
     for e, i in v2h
-      v1h[i] += e
+      v1h[i] = e
     colorLog = "cpu"
     console.log( "\t#{tip}V8(CPU) <<< vector copy >>> #{ testLength } elements used:#{ Date.now() - start } ms"[colorLog] )
 
