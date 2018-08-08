@@ -1,12 +1,15 @@
-#JC （JS CUDA）
-##What is JC？
+# JC （JS CUDA)
+
+## What is JC？
+
 JC is a NodeJs module for doing linear algebra (which mainly consists of vector and matrix operations) based on CUDA.
 
 It means you can easily use Javascript to bring your GPU down computing linear problems in parallel. In my experience, JC is **5 - 1000 times faster** than traditional CPU method thanks to huge development of modern GPU, and JC doesn't merely binding the CUDA ToolKit for using, it hides the relatively uncomprehensive BLAS routine or solvers' routine(in development) under the hood.
 
 **And most important one is**: User can quickly deploy JC with very little effort instead of learning enormous and complicate API provided by CUDA Toolkit which is writen in C++.
 
-##What JC can do?
+## What JC can do?
+
  * Level-1
    1. arbitrary dimension vector add
    2. arbitrary dimension vector dot product
@@ -29,20 +32,24 @@ It means you can easily use Javascript to bring your GPU down computing linear p
    3. dense n x n matrix QR decomposition & solve linear system & matrix inverse ( Batched ) *Coming soon*
    4. Sparse matrix solvers *Coming soon*
 
-##Requirements
+## Requirements
+
 - [x] Make sure your graphic card support CUDA v7.5 and compute capability is higher than 2.0, if you are not sure please refer to [https://developer.nvidia.com/cuda-gpus]
 - [x] Have Nodejs v6.2.X installed
 
-##How to install?
-###Pre-build
+## How to install?
+
+### Pre-build
+
 copy files in git ./Pre-build to any directory you like for example E:/Example/
  1. **jc.node**  // NodeJs module
  2. **JSCUDA.dll** // C++ binding part
  3. **JC.js** // Javascript part
 
-###Build from source
+### Build from source
 
-##Usage
+## Usage
+
 After copied related files to your module directory, all you have to do is require 'JC.js' as regular Node module.
 
 Javascript:
@@ -53,7 +60,7 @@ Coffeescript:
 ```javascript
 JC = require( ${path_of_JC.js} )
 ```
-**Attension:** If you ignore the extension '.js', Node will require 'jc.node' instead, and 'jc.node' is Node's C++ binding part which offer basic data structures as well as basic linear functions supporting 'JC.js'. If you only want to use JC, please add '.js' explicitly.
+**Attention:** If you ignore the extension '.js', Node will require 'jc.node' instead, and 'jc.node' is Node's C++ binding part which offer basic data structures as well as basic linear functions supporting 'JC.js'. If you only want to use JC, please add '.js' explicitly.
 
 Then you can use it like this
 
@@ -82,7 +89,8 @@ JC.cudaDeviceReset()    # Before program exits
 
 ```
 
-##Unit test
+## Unit test
+
 If you want to do unit tests, or take them as examples, please goto "./Pre-build" folder and copy whole "unit_test" folder into your module directory which contains ["JC.js", "jc.node", "JSCUDA.dll"].  
 Then open the terminal in module's directory and input
 ```
@@ -100,5 +108,6 @@ E:\expamles>mocha ${testname}.js
 Output is something like this:
 ![test result](https://github.com/CallmeNezha/JSCUDA/blob/master/results/test.JPG)
 
-##API Reference & Guide
+## API Reference & Guide
+
 [https://github.com/CallmeNezha/JSCUDA/wiki/]
